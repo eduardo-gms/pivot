@@ -23,6 +23,18 @@ Este documento estabelece a **Linguagem Ubíqua** (*Ubiquitous Language*) do pro
 | **Estado Visual** | `Snapshot` | Uma "fotografia" imutável da estrutura de dados em um milissegundo de tempo, gerada pelo motor do algoritmo para renderização na interface. |
 | **Passo** | `Step` | A unidade de avanço ou retrocesso na linha do tempo do simulador visual. |
 | **Fila de Prioridade** | `PriorityQueue` | Estrutura de dados linear onde os elementos são ordenados e removidos com base em um valor de peso (`weight` ou `priority`). |
+| **Cabeça da Lista** | `Head` | Ponteiro para o primeiro nó de uma estrutura linear (Lista ou Fila). |
+| **Cauda da Lista** | `Tail` | Ponteiro para o último nó de uma estrutura linear. |
+| **Próximo** | `Next` | Ponteiro em um nó que aponta para o nó sucessor. |
+| **Anterior** | `Prev` | Ponteiro em um nó de Lista Duplamente Encadeada que aponta para o nó antecessor. |
+| **Esquerda / Direita** | `Left` / `Right` | Ponteiros estruturais de nós em Árvores Binárias ou ponteiros dinâmicos em algoritmos de particionamento (ex: Quick Sort). |
+| **Empilhar** | `Push` | Operação linear de inserção de um elemento no topo de uma Pilha. |
+| **Desempilhar** | `Pop` | Operação linear de remoção do elemento no topo de uma Pilha. |
+| **Enfileirar** | `Enqueue` | Operação linear de inserção de um elemento no final de uma Fila. |
+| **Desenfileirar** | `Dequeue` | Operação linear de remoção do elemento inicial de uma Fila. |
+| **LIFO** | `LIFO` | Last-In-First-Out (Último a Entrar, Primeiro a Sair). Conceito central da Pilha. |
+| **FIFO** | `FIFO` | First-In-First-Out (Primeiro a Entrar, Primeiro a Sair). Conceito central da Fila. |
+| **Em Comparação** | `comparingNodes` / `isComparing` | Estado visual (booleano ou lista de IDs) que marca nós que estão ativamente sendo comparados pelo algoritmo em um passo específico. |
 
 ## 2. Convenções de Código (Code Conventions)
 
