@@ -75,13 +75,13 @@ C4Component
     Container_Boundary(spa, "Frontend (React SPA)") {
         Component(router, "Application Router", "React Router DOM", "Gerencia as rotas (/, /algorithms, /blog/:id).")
         
-        Component_Boundary(sim, "Motor de Simulação Visual") {
+        Container_Boundary(sim, "Motor de Simulação Visual") {
             Component(zustand, "Simulation Store", "Zustand", "Gerenciamento de estado global focado no motor de execução. Controla a fila de animação, o estado atual (Play/Pause) e o step do algoritmo.")
             Component(renderer, "Visual Renderer", "D3.js / Canvas API", "Motor de renderização de alto desempenho que reage aos estados do Zustand para desenhar as formas geométricas na tela.")
             Component(controls, "Player UI", "React Components", "Interface que permite ao usuário interagir (botões Next, Prev, Pause, Play, Range de Velocidade).")
         }
 
-        Component_Boundary(blog, "Motor de Leitura e Blog") {
+        Container_Boundary(blog, "Motor de Leitura e Blog") {
             Component(blog_ui, "Article Engine", "React Components", "Renderiza o texto rico (Markdown/HTML), tabelas de Big-O e exibe imagens (via URLs externas).")
             Component(i18n, "Localization Service", "i18next", "Controla o idioma atual (PT-BR, EN, HI, ZH) e orquestra quais dados pedir para a API.")
         }
@@ -109,12 +109,12 @@ C4Component
 
     Container_Boundary(api, "Backend API (NestJS)") {
         
-        Component_Boundary(article_module, "Articles Module") {
+        Container_Boundary(article_module, "Articles Module") {
             Component(article_ctrl, "Articles Controller", "Nest Controller", "Endpoints RESTful: GET /api/articles, GET /api/articles/:slug.")
             Component(article_svc, "Articles Service", "Nest Service", "Regra de negócio: filtragem por idioma e suporte a paginação dos textos do blog.")
         }
 
-        Component_Boundary(algo_module, "Algorithms Module") {
+        Container_Boundary(algo_module, "Algorithms Module") {
             Component(algo_ctrl, "Algorithms Controller", "Nest Controller", "Endpoints RESTful: GET /api/algorithms.")
             Component(algo_svc, "Algorithms Service", "Nest Service", "Fornece os metadados (Big-O, categorias) dos algoritmos suportados no motor visual.")
         }
