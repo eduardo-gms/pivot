@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id           String                @id @default(uuid())
+  slug         String                @unique
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  algorithms   Algorithm[]
+  translations CategoryTranslation[]
+}
+
+model CategoryTranslation {
+  id          String   @id @default(uuid())
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  locale      String   // Ex: 'pt-BR', 'en', 'hi', 'zh'
+  name        String
+  description String?
+
+  // Garante que uma categoria não tenha duas traduções para o mesmo idioma
+  @@unique([categoryId, locale])
+}
+
+model Algorithm {
+  id              String                 @id @default(uuid())
+  slug            String                 @unique
+  categoryId      String
+  category        Category               @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  timeComplexity  String
+  spaceComplexity String
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  articles        Article[]
+  translations    AlgorithmTranslation[]
+}
+
+model AlgorithmTranslation {
+  id               String    @id @default(uuid())
+  algorithmId      String
+  algorithm        Algorithm @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+  locale           String
+  name             String
+  shortDescription String    @db.Text
+
+  // Garante que um algoritmo não tenha duas traduções para o mesmo idioma
+  @@unique([algorithmId, locale])
+}
+
+model Article {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  algorithmId String?  // Opcional: o artigo pode ser geral ou atrelado a um algoritmo específico
+  algorithm   Algorithm? @relation(fields: [algorithmId], references: [id], onDelete: SetNull)
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  translations ArticleTranslation[]
+}
+
+model ArticleTranslation {
+  id             String  @id @default(uuid())
+  articleId      String
+  article        Article @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  locale         String
+  title          String
+  content        String  @db.Text // Conteúdo Markdown/HTML gerado pela LLM
+  seoDescription String?
+
+  // Garante que um artigo não tenha duas traduções para o mesmo idioma
+  @@unique([articleId, locale])
+}
