@@ -1,16 +1,16 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { AlgorithmsService } from './algorithms.service';
-import { ApiTags, ApiQuery, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { PaginationQueryDto } from '../common/dto/pagination-query.dto';
 
 @ApiTags('categories')
-@Controller('api/categories')
+@Controller('categories')
 export class CategoriesController {
   constructor(private readonly algorithmsService: AlgorithmsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all categories' })
-  @ApiQuery({ name: 'lang', required: false, type: String, description: 'Language code (e.g., pt-BR, en)' })
-  findAllCategories(@Query('lang') lang?: string) {
-    return this.algorithmsService.findAllCategories(lang || 'en');
+  @ApiOperation({ summary: 'Get all algorithm categories' })
+  findAllCategories(@Query() dto: PaginationQueryDto) {
+    return this.algorithmsService.findAllCategories(dto.lang!);
   }
 }

@@ -1,0 +1,14 @@
+# Environment Variables
+.env
+.env.test
+.env.production
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-workspace

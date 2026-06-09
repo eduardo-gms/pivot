@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -14,7 +14,7 @@ export class AlgorithmsService {
       },
     });
 
-    return categories.map(category => {
+    return categories.map((category) => {
       const translation = category.translations[0];
       return {
         id: category.id,
@@ -27,7 +27,7 @@ export class AlgorithmsService {
 
   async findAll(lang: string, categoryId?: string) {
     const whereClause = categoryId ? { categoryId } : {};
-    
+
     const algorithms = await this.prisma.algorithm.findMany({
       where: whereClause,
       include: {
@@ -37,7 +37,7 @@ export class AlgorithmsService {
       },
     });
 
-    return algorithms.map(algo => {
+    return algorithms.map((algo) => {
       const translation = algo.translations[0];
       return {
         id: algo.id,
@@ -61,14 +61,16 @@ export class AlgorithmsService {
         category: {
           include: {
             translations: {
-              where: { locale: lang }
-            }
-          }
-        }
+              where: { locale: lang },
+            },
+          },
+        },
       },
     });
 
-    if (!algo) return null;
+    if (!algo) {
+      throw new NotFoundException(`Algorithm with slug "${slug}" not found.`);
+    }
 
     const translation = algo.translations[0];
     const catTranslation = algo.category?.translations[0];

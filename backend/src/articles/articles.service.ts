@@ -1,18 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class ArticlesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(lang: string, page: number = 1, limit: number = 10, algorithmId?: string) {
+  async findAll(
+    lang: string,
+    page: number = 1,
+    limit: number = 10,
+    algorithmId?: string,
+  ) {
     const whereClause: any = { isPublished: true };
     if (algorithmId) {
       whereClause.algorithmId = algorithmId;
     }
 
     const total = await this.prisma.article.count({ where: whereClause });
-    
+
     const articles = await this.prisma.article.findMany({
       where: whereClause,
       skip: (page - 1) * limit,
@@ -25,7 +30,7 @@ export class ArticlesService {
       },
     });
 
-    const data = articles.map(article => {
+    const data = articles.map((article) => {
       const translation = article.translations[0];
       return {
         id: article.id,
@@ -57,7 +62,9 @@ export class ArticlesService {
       },
     });
 
-    if (!article || !article.isPublished) return null;
+    if (!article || !article.isPublished) {
+      throw new NotFoundException(`Article with slug "${slug}" not found.`);
+    }
 
     const translation = article.translations[0];
 

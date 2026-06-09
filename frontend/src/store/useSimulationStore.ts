@@ -1,13 +1,7 @@
 import { create } from 'zustand';
+import { SimulationStep } from '../engines/types';
 
-export interface SimulationStep {
-  id: string;
-  data: any;
-  activePointers: Record<string, string | number>;
-  highlightedElements: string[];
-  descriptionKey: string;
-  descriptionVariables?: Record<string, any>;
-}
+export type { SimulationStep };
 
 export interface SimulationState {
   steps: SimulationStep[];
@@ -25,88 +19,105 @@ export interface SimulationState {
   reset: () => void;
 }
 
+/**
+ * Simulation store using recursive setTimeout instead of setInterval
+ * to avoid stale closure issues. Each tick reads fresh state via get().
+ */
 export const useSimulationStore = create<SimulationState>((set, get) => {
-  let playInterval: any = null;
+  // Store the timeout ID inside the closure — safe for single-instance usage
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
 
-  const tick = () => {
-    const { currentStepIndex, steps, status } = get();
-    if (status !== 'PLAYING') return;
-
-    if (currentStepIndex < steps.length - 1) {
-      set({ currentStepIndex: currentStepIndex + 1 });
-    } else {
-      set({ status: 'FINISHED' });
-      clearInterval(playInterval);
+  const clearPlayback = () => {
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
     }
+  };
+
+  /**
+   * Recursive tick using setTimeout.
+   * Each tick reads the CURRENT state via get(), avoiding stale closures.
+   */
+  const scheduleTick = () => {
+    const { playbackSpeedMs } = get();
+
+    timeoutId = setTimeout(() => {
+      const { currentStepIndex, steps, status } = get();
+
+      if (status !== 'PLAYING') {
+        clearPlayback();
+        return;
+      }
+
+      if (currentStepIndex < steps.length - 1) {
+        set({ currentStepIndex: currentStepIndex + 1 });
+        scheduleTick(); // Schedule next tick with potentially updated speed
+      } else {
+        set({ status: 'FINISHED' });
+        clearPlayback();
+      }
+    }, playbackSpeedMs);
   };
 
   return {
     steps: [],
     currentStepIndex: 0,
     status: 'IDLE',
-    playbackSpeedMs: 1000,
+    playbackSpeedMs: 500,
 
     loadSimulation: (steps) => {
+      clearPlayback();
       set({ steps, currentStepIndex: 0, status: 'IDLE' });
     },
-    
+
     play: () => {
-      const { status, currentStepIndex, steps, playbackSpeedMs } = get();
+      const { status, steps } = get();
       if (status === 'PLAYING' || steps.length === 0) return;
-      
-      let nextIndex = currentStepIndex;
-      if (status === 'FINISHED') {
-        nextIndex = 0;
-      }
-      
+
+      const nextIndex = status === 'FINISHED' ? 0 : get().currentStepIndex;
       set({ status: 'PLAYING', currentStepIndex: nextIndex });
-      
-      if (playInterval) clearInterval(playInterval);
-      playInterval = setInterval(tick, playbackSpeedMs);
+
+      clearPlayback();
+      scheduleTick();
     },
-    
+
     pause: () => {
+      clearPlayback();
       set({ status: 'PAUSED' });
-      if (playInterval) clearInterval(playInterval);
     },
-    
+
     nextStep: () => {
+      clearPlayback();
       const { currentStepIndex, steps } = get();
       if (currentStepIndex < steps.length - 1) {
         set({ currentStepIndex: currentStepIndex + 1, status: 'PAUSED' });
-        if (playInterval) clearInterval(playInterval);
       }
     },
-    
+
     prevStep: () => {
+      clearPlayback();
       const { currentStepIndex } = get();
       if (currentStepIndex > 0) {
         set({ currentStepIndex: currentStepIndex - 1, status: 'PAUSED' });
-        if (playInterval) clearInterval(playInterval);
       }
     },
-    
+
     goToStep: (index) => {
+      clearPlayback();
       const { steps } = get();
       if (index >= 0 && index < steps.length) {
         set({ currentStepIndex: index, status: 'PAUSED' });
-        if (playInterval) clearInterval(playInterval);
       }
     },
-    
+
     setSpeed: (ms) => {
-      const { status } = get();
       set({ playbackSpeedMs: ms });
-      
-      if (status === 'PLAYING') {
-        if (playInterval) clearInterval(playInterval);
-        playInterval = setInterval(tick, ms);
-      }
+      // No need to restart — the next scheduleTick() call will pick up the new speed
     },
-    
+
     reset: () => {
-      if (playInterval) clearInterval(playInterval);
+      clearPlayback();
       set({ steps: [], currentStepIndex: 0, status: 'IDLE' });
-    }
+    },
   };
 });

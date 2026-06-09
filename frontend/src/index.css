@@ -61,3 +61,24 @@ a {
 a:hover {
   text-decoration: underline;
 }
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
+input[type="range"] {
+  cursor: pointer;
+}
+
+input[type="range"]:focus-visible {
+  outline: 2px solid var(--secondary);
+  outline-offset: 2px;
+}
+
