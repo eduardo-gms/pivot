@@ -9,7 +9,7 @@ const makeId = () => `insertion-${++stepCounter}`;
  */
 export function generateInsertionSortSteps(input: number[]): SimulationStep[] {
   stepCounter = 0;
-  const arr = [...input];
+  const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 
   const snapshot = (
@@ -29,7 +29,7 @@ export function generateInsertionSortSteps(input: number[]): SimulationStep[] {
     });
   };
 
-  snapshot([], 'insertion_sort_initial', {}, { array: arr.join(', ') });
+  snapshot([], 'insertion_sort_initial', {}, { array: arr.map(x => x.value).join(', ') });
 
   for (let i = 1; i < arr.length; i++) {
     const key = arr[i];
@@ -38,18 +38,18 @@ export function generateInsertionSortSteps(input: number[]): SimulationStep[] {
       [i.toString()],
       'insertion_sort_pick',
       { i },
-      { key, position: i },
+      { key: key.value, position: i },
     );
 
     let j = i - 1;
 
-    while (j >= 0 && arr[j] > key) {
+    while (j >= 0 && arr[j].value > key.value) {
       // Shift element right
       snapshot(
         [j.toString(), (j + 1).toString()],
         'insertion_sort_shift',
         { i, j },
-        { shifted: arr[j], key },
+        { shifted: arr[j].value, key: key.value },
       );
 
       arr[j + 1] = arr[j];
@@ -62,7 +62,7 @@ export function generateInsertionSortSteps(input: number[]): SimulationStep[] {
       [(j + 1).toString()],
       'insertion_sort_insert',
       { insertedAt: j + 1 },
-      { key, position: j + 1 },
+      { key: key.value, position: j + 1 },
     );
   }
 

@@ -10,11 +10,11 @@ const makeId = () => `merge-${++stepCounter}`;
  */
 export function generateMergeSortSteps(input: number[]): SimulationStep[] {
   stepCounter = 0;
-  const arr = [...input];
+  const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 
   const snapshot = (
-    values: number[],
+    values: { id: string; value: number }[],
     highlighted: string[],
     descriptionKey: string,
     pointers: Record<string, number> = {},
@@ -31,7 +31,7 @@ export function generateMergeSortSteps(input: number[]): SimulationStep[] {
     });
   };
 
-  snapshot(arr, [], 'merge_sort_initial', {}, { array: arr.join(', ') });
+  snapshot(arr, [], 'merge_sort_initial', {}, { array: arr.map(x => x.value).join(', ') });
 
   function mergeSort(lo: number, hi: number) {
     if (lo >= hi) return;
@@ -64,10 +64,10 @@ export function generateMergeSortSteps(input: number[]): SimulationStep[] {
         [k.toString()],
         'merge_sort_compare',
         { left: lo + i, right: mid + 1 + j, target: k },
-        { val1: left[i], val2: right[j] },
+        { val1: left[i].value, val2: right[j].value },
       );
 
-      if (left[i] <= right[j]) {
+      if (left[i].value <= right[j].value) {
         arr[k] = left[i];
         i++;
       } else {
@@ -96,7 +96,7 @@ export function generateMergeSortSteps(input: number[]): SimulationStep[] {
       mergedIndices,
       'merge_sort_merged',
       { lo, hi },
-      { subarray: arr.slice(lo, hi + 1).join(', ') },
+      { subarray: arr.slice(lo, hi + 1).map(x => x.value).join(', ') },
     );
   }
 

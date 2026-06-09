@@ -6,6 +6,8 @@ import { generateMergeSortSteps } from './sorting/mergeSort';
 import { generateQuickSortSteps } from './sorting/quickSort';
 import { generateStackSteps } from './linear/stack';
 import { generateQueueSteps } from './linear/queue';
+import { generateLinkedListSteps } from './linear/linkedList';
+import { generatePriorityQueueSteps } from './trees/priorityQueue';
 import { generateAVLTreeSteps } from './trees/avlTree';
 
 /**
@@ -48,6 +50,16 @@ export const engineRegistry: Record<string, EngineEntry> = {
     dataType: 'queue',
     generate: (ops) => generateQueueSteps(ops),
   },
+  'linked-list': {
+    slug: 'linked-list',
+    dataType: 'linked-list',
+    generate: (ops) => generateLinkedListSteps(ops),
+  },
+  'priority-queue': {
+    slug: 'priority-queue',
+    dataType: 'tree',
+    generate: (ops) => generatePriorityQueueSteps(ops),
+  },
   'avl-tree': {
     slug: 'avl-tree',
     dataType: 'tree',
@@ -82,7 +94,30 @@ export function getDefaultInput(slug: string): any {
         { action: 'enqueue', value: 42 },
         { action: 'dequeue' },
       ];
+    case 'linked-list':
+      return [
+        { action: 'append', value: 10 },
+        { action: 'append', value: 20 },
+        { action: 'prepend', value: 5 },
+        { action: 'delete', value: 20 },
+        { action: 'append', value: 30 }
+      ];
     case 'tree':
+      if (slug === 'priority-queue') {
+        return [
+          { action: 'insert', value: 45 },
+          { action: 'insert', value: 20 },
+          { action: 'insert', value: 14 },
+          { action: 'insert', value: 12 },
+          { action: 'insert', value: 31 },
+          { action: 'insert', value: 7 },
+          { action: 'insert', value: 11 },
+          { action: 'insert', value: 13 },
+          { action: 'insert', value: 7 },
+          { action: 'extract' },
+          { action: 'extract' },
+        ];
+      }
       return [
         { action: 'insert', value: 43 },
         { action: 'insert', value: 18 },
@@ -99,4 +134,4 @@ export function getDefaultInput(slug: string): any {
 
 // Re-export types for convenience
 export type { SimulationStep, EngineEntry } from './types';
-export type { DataType, SimulationData, ArrayData, StackData, QueueData, TreeData } from './types';
+export type { DataType, SimulationData, ArrayData, StackData, QueueData, LinkedListData, TreeData } from './types';

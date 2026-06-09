@@ -9,7 +9,7 @@ export type DataType = 'array' | 'stack' | 'queue' | 'linked-list' | 'tree';
 /** Numeric array data (used by sorting algorithms) */
 export interface ArrayData {
   type: 'array';
-  values: number[];
+  values: { id: string; value: number }[];
 }
 
 /** Stack data (LIFO) */
@@ -89,10 +89,16 @@ export interface QueueOperation {
   value?: number;
 }
 
+/** Operations for Linked List engine */
+export interface LinkedListOperation {
+  action: 'append' | 'prepend' | 'delete';
+  value?: number;
+}
+
 /** Operations for Tree engine */
 export interface TreeOperation {
-  action: 'insert';
-  value: number;
+  action: 'insert' | 'extract';
+  value?: number;
 }
 
 /** Signature for any algorithm engine function that works on arrays */

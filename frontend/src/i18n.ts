@@ -85,7 +85,24 @@ const resources = {
       "queue_dequeue": "Dequeued value {{value}} from the head of the queue.",
       "queue_final": "Queue simulation complete. Final size is {{size}}.",
 
+      "ll_initial": "Starting Linked List simulation.",
+      "ll_append": "Appended value {{value}} to the tail of the list.",
+      "ll_prepend": "Prepended value {{value}} to the head of the list.",
+      "ll_delete_found": "Found value {{value}} to delete.",
+      "ll_delete": "Deleted value {{value}} from the list.",
+      "ll_done": "Linked List simulation complete.",
+
       // --- Engine Steps (Trees) ---
+      "pq_initial": "Starting Priority Queue (Max-Heap) simulation.",
+      "pq_insert": "Inserted value {{value}} at the end of the heap.",
+      "pq_compare": "Comparing child {{childValue}} with parent {{parentValue}}.",
+      "pq_swap": "Swapped to maintain heap property.",
+      "pq_inserted": "Value {{value}} placed in correct heap position.",
+      "pq_extracting": "Extracting maximum value {{value}} from the root.",
+      "pq_replaced_root": "Replaced root with the last element of the heap.",
+      "pq_extracted": "Extracted maximum value {{value}}.",
+      "pq_done": "Priority Queue simulation complete.",
+
       "avl_initial": "Starting AVL Tree simulation.",
       "avl_insert": "Inserting value {{value}} into the AVL Tree.",
       "avl_balance": "Updating balance factors.",
@@ -177,7 +194,24 @@ const resources = {
       "queue_dequeue": "Valor {{value}} desenfileirado do início da fila (Dequeue).",
       "queue_final": "Simulação de Fila concluída. Tamanho final: {{size}}.",
 
+      "ll_initial": "Iniciando simulação de Lista Encadeada.",
+      "ll_append": "Valor {{value}} anexado no final da lista (Append).",
+      "ll_prepend": "Valor {{value}} inserido no início da lista (Prepend).",
+      "ll_delete_found": "Encontrado valor {{value}} para remoção.",
+      "ll_delete": "Valor {{value}} removido da lista.",
+      "ll_done": "Simulação de Lista Encadeada concluída.",
+
       // --- Engine Steps (Trees) ---
+      "pq_initial": "Iniciando simulação de Fila de Prioridade (Max-Heap).",
+      "pq_insert": "Inserido valor {{value}} no final do heap.",
+      "pq_compare": "Comparando filho {{childValue}} com pai {{parentValue}}.",
+      "pq_swap": "Trocado para manter a propriedade do heap.",
+      "pq_inserted": "Valor {{value}} posicionado corretamente no heap.",
+      "pq_extracting": "Extraindo o valor máximo {{value}} da raiz.",
+      "pq_replaced_root": "Raiz substituída pelo último elemento do heap.",
+      "pq_extracted": "Valor máximo {{value}} extraído.",
+      "pq_done": "Simulação de Fila de Prioridade concluída.",
+
       "avl_initial": "Iniciando simulação da Árvore AVL.",
       "avl_insert": "Inserindo valor {{value}} na árvore AVL.",
       "avl_balance": "Atualizando fatores de balanceamento.",

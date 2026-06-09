@@ -9,7 +9,7 @@ const makeId = () => `selection-${++stepCounter}`;
  */
 export function generateSelectionSortSteps(input: number[]): SimulationStep[] {
   stepCounter = 0;
-  const arr = [...input];
+  const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 
   const snapshot = (
@@ -29,7 +29,7 @@ export function generateSelectionSortSteps(input: number[]): SimulationStep[] {
     });
   };
 
-  snapshot([], 'selection_sort_initial', {}, { array: arr.join(', ') });
+  snapshot([], 'selection_sort_initial', {}, { array: arr.map(x => x.value).join(', ') });
 
   for (let i = 0; i < arr.length - 1; i++) {
     let minIdx = i;
@@ -40,10 +40,10 @@ export function generateSelectionSortSteps(input: number[]): SimulationStep[] {
         [minIdx.toString(), j.toString()],
         'selection_sort_compare',
         { i, minIdx, j },
-        { currentMin: arr[minIdx], candidate: arr[j] },
+        { currentMin: arr[minIdx].value, candidate: arr[j].value },
       );
 
-      if (arr[j] < arr[minIdx]) {
+      if (arr[j].value < arr[minIdx].value) {
         minIdx = j;
       }
     }
@@ -55,7 +55,7 @@ export function generateSelectionSortSteps(input: number[]): SimulationStep[] {
         [i.toString(), minIdx.toString()],
         'selection_sort_swap',
         { i, minIdx },
-        { val1: arr[i], val2: arr[minIdx] },
+        { val1: arr[i].value, val2: arr[minIdx].value },
       );
     }
 
@@ -64,7 +64,7 @@ export function generateSelectionSortSteps(input: number[]): SimulationStep[] {
       [i.toString()],
       'selection_sort_placed',
       { i },
-      { value: arr[i], position: i },
+      { value: arr[i].value, position: i },
     );
   }
 

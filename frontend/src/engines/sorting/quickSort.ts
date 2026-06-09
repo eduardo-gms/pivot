@@ -9,7 +9,7 @@ const makeId = () => `quick-${++stepCounter}`;
  */
 export function generateQuickSortSteps(input: number[]): SimulationStep[] {
   stepCounter = 0;
-  const arr = [...input];
+  const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 
   const snapshot = (
@@ -29,7 +29,7 @@ export function generateQuickSortSteps(input: number[]): SimulationStep[] {
     });
   };
 
-  snapshot([], 'quick_sort_initial', {}, { array: arr.join(', ') });
+  snapshot([], 'quick_sort_initial', {}, { array: arr.map(x => x.value).join(', ') });
 
   function partition(lo: number, hi: number): number {
     const pivot = arr[hi];
@@ -38,7 +38,7 @@ export function generateQuickSortSteps(input: number[]): SimulationStep[] {
       [hi.toString()],
       'quick_sort_pivot',
       { pivot: hi, lo, hi },
-      { pivotValue: pivot },
+      { pivotValue: pivot.value },
     );
 
     let i = lo - 1;
@@ -49,10 +49,10 @@ export function generateQuickSortSteps(input: number[]): SimulationStep[] {
         [j.toString(), hi.toString()],
         'quick_sort_compare',
         { i: i + 1, j, pivot: hi },
-        { element: arr[j], pivotValue: pivot },
+        { element: arr[j].value, pivotValue: pivot.value },
       );
 
-      if (arr[j] <= pivot) {
+      if (arr[j].value <= pivot.value) {
         i++;
         if (i !== j) {
           [arr[i], arr[j]] = [arr[j], arr[i]];
@@ -60,7 +60,7 @@ export function generateQuickSortSteps(input: number[]): SimulationStep[] {
             [i.toString(), j.toString()],
             'quick_sort_swap',
             { i, j, pivot: hi },
-            { val1: arr[i], val2: arr[j] },
+            { val1: arr[i].value, val2: arr[j].value },
           );
         }
       }
@@ -72,7 +72,7 @@ export function generateQuickSortSteps(input: number[]): SimulationStep[] {
       [(i + 1).toString()],
       'quick_sort_pivot_placed',
       { pivotFinal: i + 1 },
-      { pivotValue: pivot, position: i + 1 },
+      { pivotValue: pivot.value, position: i + 1 },
     );
 
     return i + 1;

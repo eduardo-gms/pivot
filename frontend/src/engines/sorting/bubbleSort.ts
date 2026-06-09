@@ -9,7 +9,7 @@ const makeId = () => `bubble-${++stepCounter}`;
  */
 export function generateBubbleSortSteps(input: number[]): SimulationStep[] {
   stepCounter = 0;
-  const arr = [...input];
+  const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 
   const snapshot = (
@@ -30,7 +30,7 @@ export function generateBubbleSortSteps(input: number[]): SimulationStep[] {
   };
 
   // Initial state
-  snapshot([], 'bubble_sort_initial', {}, { array: arr.join(', ') });
+  snapshot([], 'bubble_sort_initial', {}, { array: arr.map(x => x.value).join(', ') });
 
   for (let pass = 0; pass < arr.length - 1; pass++) {
     let hasSwapped = false;
@@ -41,10 +41,10 @@ export function generateBubbleSortSteps(input: number[]): SimulationStep[] {
         [j.toString(), (j + 1).toString()],
         'bubble_sort_compare',
         { i: j, j: j + 1 },
-        { val1: arr[j], val2: arr[j + 1] },
+        { val1: arr[j].value, val2: arr[j + 1].value },
       );
 
-      if (arr[j] > arr[j + 1]) {
+      if (arr[j].value > arr[j + 1].value) {
         // Swap
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         hasSwapped = true;
@@ -53,7 +53,7 @@ export function generateBubbleSortSteps(input: number[]): SimulationStep[] {
           [j.toString(), (j + 1).toString()],
           'bubble_sort_swap',
           { i: j, j: j + 1 },
-          { val1: arr[j], val2: arr[j + 1] },
+          { val1: arr[j].value, val2: arr[j + 1].value },
         );
       }
     }

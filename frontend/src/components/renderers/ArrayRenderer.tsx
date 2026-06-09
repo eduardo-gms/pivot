@@ -17,7 +17,7 @@ export function ArrayRenderer({ data, highlightedElements, width, height }: Prop
 
     const svg = d3.select(svgRef.current);
     const values = data.values;
-    const maxVal = d3.max(values) || 100;
+    const maxVal = d3.max(values, (d) => d.value) || 100;
     const padding = { top: 40, right: 30, bottom: 40, left: 30 };
 
     const xScale = d3
@@ -32,7 +32,7 @@ export function ArrayRenderer({ data, highlightedElements, width, height }: Prop
       .range([height - padding.bottom, padding.top]);
 
     // ── Bars ──
-    const bars = svg.selectAll<SVGRectElement, number>('rect.bar').data(values);
+    const bars = svg.selectAll<SVGRectElement, { id: string; value: number }>('rect.bar').data(values, (d) => d.id);
 
     bars
       .enter()
@@ -44,9 +44,9 @@ export function ArrayRenderer({ data, highlightedElements, width, height }: Prop
       .transition()
       .duration(300)
       .attr('x', (_, i) => xScale(i)!)
-      .attr('y', (d) => yScale(d))
+      .attr('y', (d) => yScale(d.value))
       .attr('width', xScale.bandwidth())
-      .attr('height', (d) => height - padding.bottom - yScale(d))
+      .attr('height', (d) => height - padding.bottom - yScale(d.value))
       .attr('fill', (_, i) =>
         highlightedElements.includes(i.toString()) ? '#ef4444' : '#6366f1',
       )
@@ -65,7 +65,7 @@ export function ArrayRenderer({ data, highlightedElements, width, height }: Prop
     bars.exit().remove();
 
     // ── Labels ──
-    const labels = svg.selectAll<SVGTextElement, number>('text.label').data(values);
+    const labels = svg.selectAll<SVGTextElement, { id: string; value: number }>('text.label').data(values, (d) => d.id);
 
     labels
       .enter()
@@ -79,13 +79,14 @@ export function ArrayRenderer({ data, highlightedElements, width, height }: Prop
       .transition()
       .duration(300)
       .attr('x', (_, i) => xScale(i)! + xScale.bandwidth() / 2)
-      .attr('y', (d) => yScale(d) - 8)
-      .text((d) => d);
+      .attr('y', (d) => yScale(d.value) - 8)
+      .text((d) => d.value);
 
     labels.exit().remove();
 
     // ── Index labels ──
-    const indices = svg.selectAll<SVGTextElement, number>('text.index').data(values);
+    // Index labels are static for the grid positions
+    const indices = svg.selectAll<SVGTextElement, number>('text.index').data(values.map((_, i) => i));
 
     indices
       .enter()

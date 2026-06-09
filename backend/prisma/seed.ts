@@ -173,6 +173,23 @@ async function main() {
     },
   });
 
+  await prisma.algorithm.upsert({
+    where: { slug: 'linked-list' },
+    update: {},
+    create: {
+      slug: 'linked-list',
+      categoryId: linearStructures.id,
+      timeComplexity: 'O(n)',
+      spaceComplexity: 'O(n)',
+      translations: {
+        create: [
+          { locale: 'en', name: 'Linked List', shortDescription: 'A linear collection of data elements whose order is not given by their physical placement in memory. Instead, each element points to the next.' },
+          { locale: 'pt-BR', name: 'Lista Encadeada', shortDescription: 'Uma coleção linear de elementos de dados cuja ordem não é dada por sua localização física na memória. Em vez disso, cada elemento aponta para o próximo.' },
+        ],
+      },
+    },
+  });
+
   // ──────────────────────────────────────────────────
   // 4. TREES
   // ──────────────────────────────────────────────────
@@ -188,6 +205,23 @@ async function main() {
         create: [
           { locale: 'en', name: 'AVL Tree', shortDescription: 'Self-balancing binary search tree where the heights of left and right subtrees differ by at most one.' },
           { locale: 'pt-BR', name: 'Árvore AVL', shortDescription: 'Árvore binária de busca auto-balanceada onde a altura das subárvores esquerda e direita difere em no máximo um.' },
+        ],
+      },
+    },
+  });
+
+  await prisma.algorithm.upsert({
+    where: { slug: 'priority-queue' },
+    update: {},
+    create: {
+      slug: 'priority-queue',
+      categoryId: trees.id,
+      timeComplexity: 'O(log n)',
+      spaceComplexity: 'O(n)',
+      translations: {
+        create: [
+          { locale: 'en', name: 'Priority Queue', shortDescription: 'An abstract data type similar to a regular queue or stack in which each element additionally has a "priority" associated with it. Often implemented with Heaps.' },
+          { locale: 'pt-BR', name: 'Fila de Prioridade', shortDescription: 'Um tipo de dado abstrato semelhante a uma fila ou pilha regular, no qual cada elemento possui uma "prioridade" associada. Frequentemente implementado com Heaps.' },
         ],
       },
     },
@@ -224,7 +258,7 @@ async function main() {
 
   console.log('✅ Seeding finished successfully.');
   console.log('   Categories: sorting, linear-structures, trees');
-  console.log('   Algorithms: bubble-sort, selection-sort, insertion-sort, merge-sort, quick-sort, stack, queue, avl-tree');
+  console.log('   Algorithms: bubble-sort, selection-sort, insertion-sort, merge-sort, quick-sort, stack, queue, linked-list, avl-tree, priority-queue');
   console.log('   Articles: understanding-bubble-sort');
 }
 

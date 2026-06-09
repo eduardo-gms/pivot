@@ -5,6 +5,7 @@ import { ArrayRenderer } from './renderers/ArrayRenderer';
 import { StackRenderer } from './renderers/StackRenderer';
 import { QueueRenderer } from './renderers/QueueRenderer';
 import { TreeRenderer } from './renderers/TreeRenderer';
+import { LinkedListRenderer } from './renderers/LinkedListRenderer';
 
 /**
  * Orchestrator component that dispatches to the correct renderer
@@ -66,6 +67,8 @@ export function D3Renderer() {
         return <StackRenderer data={data} {...props} />;
       case 'queue':
         return <QueueRenderer data={data} {...props} />;
+      case 'linked-list':
+        return <LinkedListRenderer data={data} {...props} />;
       case 'tree':
         return <TreeRenderer data={data} {...props} />;
       default:
