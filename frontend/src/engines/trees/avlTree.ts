@@ -130,7 +130,7 @@ export function generateAVLTreeSteps(operations: TreeOperation[]): SimulationSte
   };
 
   for (const op of operations) {
-    if (op.action === 'insert') {
+    if (op.action === 'insert' && op.value !== undefined) {
       snapshot([], 'avl_insert', { value: op.value });
       root = insert(root, op.value);
       snapshot([], 'avl_balance'); // Final state after this insertion
