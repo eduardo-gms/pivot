@@ -24,20 +24,22 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Add custom nginx configuration template for envsubst
-RUN mkdir -p /etc/nginx/templates && echo "server { \
-    listen 80; \
-    location / { \
-        root /usr/share/nginx/html; \
-        index index.html index.htm; \
-        try_files \$$uri \$$uri/ /index.html; \
-    } \
-    location /api/ { \
-        proxy_pass \${BACKEND_URL}/api/; \
-        proxy_set_header Host \$$host; \
-        proxy_set_header X-Real-IP \$$remote_addr; \
-    } \
-}" > /etc/nginx/templates/default.conf.template
+RUN cat <<'EOF' > /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+    location /api/ {
+        proxy_pass REPLACE_BACKEND_URL/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+EOF
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["sh", "-c", "sed -i 's|REPLACE_BACKEND_URL|'\"${BACKEND_URL}\"'|g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]

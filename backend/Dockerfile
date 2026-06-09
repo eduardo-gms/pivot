@@ -1,6 +1,9 @@
 # Base image
 FROM node:18-alpine AS builder
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
+
 # Create app directory
 WORKDIR /app
 
@@ -24,6 +27,9 @@ RUN npm run build
 
 # Production image
 FROM node:18-alpine
+
+# Install OpenSSL for Prisma in production
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
