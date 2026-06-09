@@ -8,6 +8,9 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
+# Set API URL to relative path so it hits Nginx proxy
+ENV VITE_API_URL=/api
+
 # Copy source code and build
 COPY . .
 RUN npm run build
@@ -20,14 +23,18 @@ FROM nginx:alpine
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Add custom nginx configuration if needed for React Router SPA
-# (Fallback to index.html for unknown routes)
+# Add custom nginx configuration with reverse proxy to backend
 RUN echo "server { \
     listen 80; \
     location / { \
         root /usr/share/nginx/html; \
         index index.html index.htm; \
         try_files \$uri \$uri/ /index.html; \
+    } \
+    location /api/ { \
+        proxy_pass http://backend:3000/api/; \
+        proxy_set_header Host \$host; \
+        proxy_set_header X-Real-IP \$remote_addr; \
     } \
 }" > /etc/nginx/conf.d/default.conf
 

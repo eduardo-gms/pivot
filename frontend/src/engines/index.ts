@@ -6,6 +6,7 @@ import { generateMergeSortSteps } from './sorting/mergeSort';
 import { generateQuickSortSteps } from './sorting/quickSort';
 import { generateStackSteps } from './linear/stack';
 import { generateQueueSteps } from './linear/queue';
+import { generateAVLTreeSteps } from './trees/avlTree';
 
 /**
  * Central registry mapping algorithm slugs to their engine generators.
@@ -47,6 +48,11 @@ export const engineRegistry: Record<string, EngineEntry> = {
     dataType: 'queue',
     generate: (ops) => generateQueueSteps(ops),
   },
+  'avl-tree': {
+    slug: 'avl-tree',
+    dataType: 'tree',
+    generate: (ops) => generateAVLTreeSteps(ops),
+  },
 };
 
 /** Helper to get default sample input for an engine */
@@ -76,6 +82,16 @@ export function getDefaultInput(slug: string): any {
         { action: 'enqueue', value: 42 },
         { action: 'dequeue' },
       ];
+    case 'tree':
+      return [
+        { action: 'insert', value: 43 },
+        { action: 'insert', value: 18 },
+        { action: 'insert', value: 22 }, // Triggers LR rotation
+        { action: 'insert', value: 9 },
+        { action: 'insert', value: 21 },
+        { action: 'insert', value: 6 },  // Triggers LL rotation
+        { action: 'insert', value: 8 },  // Triggers LR rotation
+      ];
     default:
       return null;
   }
@@ -83,4 +99,4 @@ export function getDefaultInput(slug: string): any {
 
 // Re-export types for convenience
 export type { SimulationStep, EngineEntry } from './types';
-export type { DataType, SimulationData, ArrayData, StackData, QueueData } from './types';
+export type { DataType, SimulationData, ArrayData, StackData, QueueData, TreeData } from './types';

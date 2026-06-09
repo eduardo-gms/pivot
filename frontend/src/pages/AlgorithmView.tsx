@@ -9,7 +9,7 @@ import { PlayerControls } from '../components/PlayerControls';
 export function AlgorithmView() {
   const { slug } = useParams<{ slug: string }>();
   const { t } = useTranslation();
-  const { loadSimulation, reset } = useSimulationStore();
+  const { loadSimulation, reset, steps, currentStepIndex } = useSimulationStore();
   const [inputText, setInputText] = useState('');
 
   const engine = slug ? engineRegistry[slug] : null;
@@ -117,6 +117,22 @@ export function AlgorithmView() {
       )}
 
       <D3Renderer />
+
+      {steps.length > 0 && (
+        <div
+          className="glass-panel"
+          style={{
+            padding: '1.25rem 1.5rem',
+            marginBottom: '1rem',
+            borderLeft: '4px solid var(--secondary)',
+            fontSize: '1.05rem',
+            lineHeight: 1.6,
+          }}
+        >
+          {t(steps[currentStepIndex].descriptionKey, steps[currentStepIndex].descriptionVariables || {}) as string}
+        </div>
+      )}
+
       <PlayerControls />
     </div>
   );

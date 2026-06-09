@@ -22,12 +22,12 @@ export function StackRenderer({ data, highlightedElements, width, height }: Prop
     const centerX = width / 2;
     const baseY = height - 50;
 
-    // Clear previous
-    svg.selectAll('*').remove();
-
-    // Base platform
-    svg
-      .append('line')
+    // Base platform (static)
+    let platform = svg.select<SVGLineElement>('line.platform');
+    if (platform.empty()) {
+      platform = svg.append('line').attr('class', 'platform');
+    }
+    platform
       .attr('x1', centerX - blockWidth / 2 - 10)
       .attr('y1', baseY)
       .attr('x2', centerX + blockWidth / 2 + 10)
@@ -35,69 +35,99 @@ export function StackRenderer({ data, highlightedElements, width, height }: Prop
       .attr('stroke', '#475569')
       .attr('stroke-width', 3);
 
+    // Empty state text
+    let emptyText = svg.select<SVGTextElement>('text.empty-state');
+    if (emptyText.empty()) {
+      emptyText = svg.append('text').attr('class', 'empty-state');
+    }
+    emptyText
+      .attr('x', centerX)
+      .attr('y', height / 2)
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#64748b')
+      .attr('font-size', '14px')
+      .text('Empty Stack')
+      .style('opacity', values.length === 0 ? 1 : 0);
+
     // "TOP" label
-    if (values.length > 0) {
-      const topY = baseY - values.length * blockHeight;
-      svg
-        .append('text')
-        .attr('x', centerX + blockWidth / 2 + 20)
-        .attr('y', topY + blockHeight / 2 + 4)
-        .attr('fill', '#fbbf24')
-        .attr('font-size', '12px')
-        .attr('font-weight', '700')
-        .text('← TOP');
+    let topLabel = svg.select<SVGTextElement>('text.top-label');
+    if (topLabel.empty()) {
+      topLabel = svg.append('text').attr('class', 'top-label');
+    }
+    const topY = baseY - values.length * blockHeight;
+    topLabel
+      .attr('x', centerX + blockWidth / 2 + 20)
+      .attr('font-size', '12px')
+      .attr('font-weight', '700')
+      .text('← TOP')
+      .transition()
+      .duration(300)
+      .attr('y', topY + blockHeight / 2 + 4)
+      .style('opacity', values.length > 0 ? 1 : 0)
+      .attr('fill', '#fbbf24');
+
+    // --- General Update Pattern for Stack Blocks ---
+    const blocksGroup = svg.select('g.blocks');
+    if (blocksGroup.empty()) {
+      svg.append('g').attr('class', 'blocks');
     }
 
-    // Stack blocks (bottom-up)
-    values.forEach((value, i) => {
-      const y = baseY - (i + 1) * blockHeight;
-      const isHighlighted = highlightedElements.includes(i.toString());
-      const isTop = i === values.length - 1;
+    const blocks = svg
+      .select('g.blocks')
+      .selectAll<SVGGElement, number>('g.stack-block')
+      .data(values, (_, i) => i); // Using index as key is safe for stacks (push/pop at end)
 
-      // Block
-      svg
-        .append('rect')
-        .attr('x', centerX - blockWidth / 2)
-        .attr('y', y + 2)
-        .attr('width', blockWidth)
-        .attr('height', blockHeight - 4)
-        .attr('rx', 8)
-        .attr('fill', isHighlighted ? '#ef4444' : isTop ? '#6366f1' : '#334155')
-        .attr('stroke', isHighlighted ? '#fbbf24' : 'rgba(255,255,255,0.15)')
-        .attr('stroke-width', isHighlighted ? 3 : 1)
-        .attr('stroke-dasharray', isHighlighted ? '6,3' : 'none');
+    const blocksEnter = blocks
+      .enter()
+      .append('g')
+      .attr('class', 'stack-block')
+      .attr('transform', (_, i) => `translate(0, ${baseY - (i + 1) * blockHeight - 30})`)
+      .style('opacity', 0);
 
-      // Value label
-      svg
-        .append('text')
-        .attr('x', centerX)
-        .attr('y', y + blockHeight / 2 + 5)
-        .attr('text-anchor', 'middle')
-        .attr('fill', '#f1f5f9')
-        .attr('font-weight', '700')
-        .attr('font-size', '16px')
-        .text(value);
-    });
+    blocksEnter
+      .append('rect')
+      .attr('x', centerX - blockWidth / 2)
+      .attr('width', blockWidth)
+      .attr('height', blockHeight - 4)
+      .attr('rx', 8);
 
-    // Empty state
-    if (values.length === 0) {
-      svg
-        .append('text')
-        .attr('x', centerX)
-        .attr('y', height / 2)
-        .attr('text-anchor', 'middle')
-        .attr('fill', '#64748b')
-        .attr('font-size', '14px')
-        .text('Empty Stack');
-    }
+    blocksEnter
+      .append('text')
+      .attr('x', centerX)
+      .attr('text-anchor', 'middle')
+      .attr('font-weight', '700')
+      .attr('font-size', '16px');
+
+    const blocksUpdate = blocksEnter.merge(blocks);
+
+    blocksUpdate
+      .transition()
+      .duration(300)
+      .attr('transform', (_, i) => `translate(0, ${baseY - (i + 1) * blockHeight})`)
+      .style('opacity', 1);
+
+    blocksUpdate.select('rect')
+      .transition()
+      .duration(300)
+      .attr('y', 2)
+      .attr('fill', (_, i) => (highlightedElements.includes(i.toString()) ? '#ef4444' : i === values.length - 1 ? '#6366f1' : '#334155'))
+      .attr('stroke', (_, i) => (highlightedElements.includes(i.toString()) ? '#fbbf24' : 'rgba(255,255,255,0.15)'))
+      .attr('stroke-width', (_, i) => (highlightedElements.includes(i.toString()) ? 3 : 1))
+      .attr('stroke-dasharray', (_, i) => (highlightedElements.includes(i.toString()) ? '6,3' : 'none'));
+
+    blocksUpdate.select('text')
+      .attr('y', blockHeight / 2 + 5)
+      .attr('fill', '#f1f5f9')
+      .text((d) => d);
+
+    blocks
+      .exit()
+      .transition()
+      .duration(300)
+      .attr('transform', (_, i) => `translate(0, ${baseY - (i + 1) * blockHeight - 30})`)
+      .style('opacity', 0)
+      .remove();
   }, [data, highlightedElements, width, height]);
 
-  return (
-    <svg
-      ref={svgRef}
-      width={width}
-      height={height}
-      style={{ overflow: 'visible' }}
-    />
-  );
+  return <svg ref={svgRef} width={width} height={height} style={{ overflow: 'visible' }} />;
 }

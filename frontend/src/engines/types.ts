@@ -89,6 +89,12 @@ export interface QueueOperation {
   value?: number;
 }
 
+/** Operations for Tree engine */
+export interface TreeOperation {
+  action: 'insert';
+  value: number;
+}
+
 /** Signature for any algorithm engine function that works on arrays */
 export type SortingEngineFunction = (input: number[]) => SimulationStep[];
 

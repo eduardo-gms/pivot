@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { api } from '../api';
+import 'highlight.js/styles/github-dark.css'; // Add a syntax highlighting theme
 
 interface ArticleDetail {
   id: string;
@@ -50,62 +54,6 @@ export function BlogView() {
     );
   }
 
-  // Simple Markdown-to-HTML (handles #, ##, ###, **, ```, |tables|, \n)
-  const renderContent = (md: string) => {
-    const lines = md.split('\n');
-    const html: string[] = [];
-    let inCodeBlock = false;
-
-    for (const line of lines) {
-      if (line.startsWith('```')) {
-        inCodeBlock = !inCodeBlock;
-        html.push(inCodeBlock ? '<pre><code>' : '</code></pre>');
-        continue;
-      }
-
-      if (inCodeBlock) {
-        html.push(line);
-        continue;
-      }
-
-      if (line.startsWith('### ')) {
-        html.push(`<h3 style="margin-top:1.5rem;margin-bottom:0.5rem">${line.slice(4)}</h3>`);
-      } else if (line.startsWith('## ')) {
-        html.push(`<h2 style="margin-top:2rem;margin-bottom:0.75rem">${line.slice(3)}</h2>`);
-      } else if (line.startsWith('# ')) {
-        html.push(`<h1 style="margin-top:2rem;margin-bottom:0.75rem">${line.slice(2)}</h1>`);
-      } else if (line.startsWith('| ')) {
-        // Table row
-        const cells = line.split('|').filter(Boolean).map((c) => c.trim());
-        if (cells.every((c) => c.match(/^[-:]+$/))) {
-          // Separator row — skip
-          continue;
-        }
-        const tag = html.some((h) => h.includes('<table>')) ? 'td' : 'th';
-        if (tag === 'th' && !html.some((h) => h.includes('<table>'))) {
-          html.push('<table style="width:100%;border-collapse:collapse;margin:1rem 0"><thead><tr>');
-        }
-        html.push(`<tr>${cells.map((c) => `<${tag} style="padding:0.5rem;border:1px solid rgba(255,255,255,0.1)">${c}</${tag}>`).join('')}</tr>`);
-        if (tag === 'th') {
-          html.push('</thead><tbody>');
-        }
-      } else if (line.trim() === '' && html.some((h) => h.includes('<tbody>'))) {
-        html.push('</tbody></table>');
-      } else if (line.trim() === '') {
-        html.push('<br/>');
-      } else {
-        // Inline formatting
-        const formatted = line
-          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\*(.+?)\*/g, '<em>$1</em>')
-          .replace(/`(.+?)`/g, '<code style="background:rgba(255,255,255,0.1);padding:0.15rem 0.4rem;border-radius:4px">$1</code>');
-        html.push(`<p style="line-height:1.7;margin-bottom:0.5rem">${formatted}</p>`);
-      }
-    }
-
-    return html.join('\n');
-  };
-
   return (
     <div style={{ maxWidth: '750px', margin: '0 auto' }}>
       <Link to="/" style={{ color: '#6366f1', fontSize: '0.9rem' }}>
@@ -120,11 +68,16 @@ export function BlogView() {
           {new Date(article.createdAt).toLocaleDateString()}
         </p>
 
-        <div
-          className="glass-panel"
-          style={{ padding: '2rem', lineHeight: 1.7 }}
-          dangerouslySetInnerHTML={{ __html: renderContent(article.content) }}
-        />
+        <div className="glass-panel" style={{ padding: '2rem', lineHeight: 1.7 }}>
+          <div className="prose">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeHighlight]}
+            >
+              {article.content}
+            </ReactMarkdown>
+          </div>
+        </div>
       </article>
     </div>
   );
