@@ -1,0 +1,24 @@
+location: East US 2
+name: pivot-frontend
+resourceGroup: rg-pivot-app
+type: Microsoft.App/containerApps
+properties:
+  environmentId: /subscriptions/cc30f46e-0491-412c-a68e-2173676fb442/resourceGroups/rg-pivot-app/providers/Microsoft.App/managedEnvironments/env-pivot-prod
+  configuration:
+    ingress:
+      external: true
+      targetPort: 80
+      allowInsecure: false
+      traffic:
+        - latestRevision: true
+          weight: 100
+  template:
+    containers:
+      - name: pivot-frontend
+        image: ghcr.io/eduardo-gms/pivot-frontend:latest
+        env:
+          - name: BACKEND_URL
+            value: "https://pivot-backend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+    scale:
+      minReplicas: 1
+      maxReplicas: 1

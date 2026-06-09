@@ -1,0 +1,33 @@
+location: East US 2
+name: pivot-backend
+resourceGroup: rg-pivot-app
+type: Microsoft.App/containerApps
+properties:
+  environmentId: /subscriptions/cc30f46e-0491-412c-a68e-2173676fb442/resourceGroups/rg-pivot-app/providers/Microsoft.App/managedEnvironments/env-pivot-prod
+  configuration:
+    ingress:
+      external: true
+      targetPort: 3000
+      allowInsecure: false
+      traffic:
+        - latestRevision: true
+          weight: 100
+  template:
+    containers:
+      - name: pivot-backend
+        image: ghcr.io/eduardo-gms/pivot-backend:latest
+        command:
+          - sh
+        args:
+          - "-c"
+          - "npx prisma migrate deploy && npm run start:prod"
+        env:
+          - name: DATABASE_URL
+            value: "postgresql://neondb_owner:npg_YTpkuGqZ4Vs5@ep-soft-sunset-apgfkytq-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+          - name: PORT
+            value: "3000"
+          - name: CORS_ORIGIN
+            value: "https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+    scale:
+      minReplicas: 1
+      maxReplicas: 1
