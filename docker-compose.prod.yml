@@ -9,6 +9,8 @@ services:
       - DATABASE_URL
       - CORS_ORIGIN=*
       - PORT=3000
+    command: >
+      sh -c "npx prisma migrate deploy && npm run start:prod"
 
 
   frontend:

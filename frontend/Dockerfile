@@ -23,8 +23,8 @@ FROM nginx:alpine
 # Copy built assets from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Add custom nginx configuration with reverse proxy to backend
-RUN echo "server { \
+# Add custom nginx configuration template for envsubst
+RUN mkdir -p /etc/nginx/templates && echo "server { \
     listen 80; \
     location / { \
         root /usr/share/nginx/html; \
@@ -32,11 +32,11 @@ RUN echo "server { \
         try_files \$uri \$uri/ /index.html; \
     } \
     location /api/ { \
-        proxy_pass http://backend:3000/api/; \
+        proxy_pass \${BACKEND_URL}/api/; \
         proxy_set_header Host \$host; \
         proxy_set_header X-Real-IP \$remote_addr; \
     } \
-}" > /etc/nginx/conf.d/default.conf
+}" > /etc/nginx/templates/default.conf.template
 
 EXPOSE 80
 
