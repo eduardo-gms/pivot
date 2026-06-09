@@ -9,8 +9,7 @@ services:
       DATABASE_URL: ${DATABASE_URL}
       CORS_ORIGIN: "*"
       PORT: 3000
-    command: >
-      sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start:prod"
+
 
   frontend:
     image: ghcr.io/eduardo-gms/pivot-frontend:latest
