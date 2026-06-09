@@ -108,9 +108,9 @@ jobs:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ secrets.GITHUB_TOKEN }}
           containerAppName: pivot-backend
-          resourceGroup: pivot-rg
+          resourceGroup: rg-pivot-app
           imageToDeploy: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest
-          environmentVariables: DATABASE_URL=${{ secrets.DATABASE_URL }} CORS_ORIGIN=https://pivot-frontend.azurecontainerapps.io PORT=3000
+          environmentVariables: DATABASE_URL=${{ secrets.DATABASE_URL }} CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io PORT=3000
 
       - name: Deploy Frontend to Container Apps
         uses: azure/container-apps-deploy-action@v2
@@ -119,6 +119,6 @@ jobs:
           registryUsername: ${{ github.actor }}
           registryPassword: ${{ secrets.GITHUB_TOKEN }}
           containerAppName: pivot-frontend
-          resourceGroup: pivot-rg
+          resourceGroup: rg-pivot-app
           imageToDeploy: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest
-          environmentVariables: BACKEND_URL=https://pivot-backend.internal.azurecontainerapps.io
+          environmentVariables: BACKEND_URL=https://pivot-backend.whitecliff-325dad00.eastus2.azurecontainerapps.io
