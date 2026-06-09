@@ -27,11 +27,13 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy the bundled code from the builder stage
-COPY --from=builder /app/node_modules ./node_modules
+# Copy only necessary files
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
+
+# Install production dependencies and generate Prisma client
+RUN npm ci --omit=dev && npx prisma generate
 
 EXPOSE 3000
 

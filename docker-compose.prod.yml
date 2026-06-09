@@ -3,11 +3,12 @@ version: '3.8'
 services:
   backend:
     image: ghcr.io/eduardo-gms/pivot-backend:latest
+    restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - DATABASE_URL
-      - CORS_ORIGIN=*
+      - CORS_ORIGIN=https://pivot-frontend.azurecontainerapps.io
       - PORT=3000
     command: >
       sh -c "npx prisma migrate deploy && npm run start:prod"
@@ -15,7 +16,10 @@ services:
 
   frontend:
     image: ghcr.io/eduardo-gms/pivot-frontend:latest
+    restart: unless-stopped
     ports:
       - "80:80"
+    environment:
+      - BACKEND_URL=http://backend:3000
     depends_on:
       - backend

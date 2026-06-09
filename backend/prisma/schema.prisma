@@ -33,6 +33,7 @@ model CategoryTranslation {
 
   // Garante que uma categoria não tenha duas traduções para o mesmo idioma
   @@unique([categoryId, locale])
+  @@index([locale])
 }
 
 model Algorithm {
@@ -59,6 +60,7 @@ model AlgorithmTranslation {
 
   // Garante que um algoritmo não tenha duas traduções para o mesmo idioma
   @@unique([algorithmId, locale])
+  @@index([locale])
 }
 
 model Article {
@@ -71,6 +73,9 @@ model Article {
   updatedAt   DateTime @updatedAt
 
   translations ArticleTranslation[]
+
+  @@index([isPublished])
+  @@index([algorithmId])
 }
 
 model ArticleTranslation {
@@ -84,4 +89,5 @@ model ArticleTranslation {
 
   // Garante que um artigo não tenha duas traduções para o mesmo idioma
   @@unique([articleId, locale])
+  @@index([locale])
 }

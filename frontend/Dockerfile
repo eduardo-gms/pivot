@@ -29,12 +29,12 @@ RUN mkdir -p /etc/nginx/templates && echo "server { \
     location / { \
         root /usr/share/nginx/html; \
         index index.html index.htm; \
-        try_files \$uri \$uri/ /index.html; \
+        try_files \$$uri \$$uri/ /index.html; \
     } \
     location /api/ { \
         proxy_pass \${BACKEND_URL}/api/; \
-        proxy_set_header Host \$host; \
-        proxy_set_header X-Real-IP \$remote_addr; \
+        proxy_set_header Host \$$host; \
+        proxy_set_header X-Real-IP \$$remote_addr; \
     } \
 }" > /etc/nginx/templates/default.conf.template
 

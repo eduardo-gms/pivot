@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ArticlesService {
@@ -11,7 +12,7 @@ export class ArticlesService {
     limit: number = 10,
     algorithmId?: string,
   ) {
-    const whereClause: any = { isPublished: true };
+    const whereClause: Prisma.ArticleWhereInput = { isPublished: true };
     if (algorithmId) {
       whereClause.algorithmId = algorithmId;
     }
