@@ -5,6 +5,9 @@ type: Microsoft.App/containerApps
 properties:
   environmentId: /subscriptions/cc30f46e-0491-412c-a68e-2173676fb442/resourceGroups/rg-pivot-app/providers/Microsoft.App/managedEnvironments/env-pivot-prod
   configuration:
+    secrets:
+      - name: database-url
+        value: "REPLACE_WITH_SECRET_VALUE_IN_PORTAL"
     ingress:
       external: true
       targetPort: 3000
@@ -23,7 +26,7 @@ properties:
           - "npx prisma migrate deploy && npm run start:prod"
         env:
           - name: DATABASE_URL
-            value: "postgresql://neondb_owner:npg_YTpkuGqZ4Vs5@ep-soft-sunset-apgfkytq-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+            secretRef: database-url
           - name: PORT
             value: "3000"
           - name: CORS_ORIGIN

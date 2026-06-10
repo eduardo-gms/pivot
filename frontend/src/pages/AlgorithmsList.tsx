@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../api';
 import { engineRegistry } from '../engines';
+import { BarChart3, GitBranch, Network, Layers, Code2 } from 'lucide-react';
 
 interface Algorithm {
   id: string;
@@ -14,99 +15,145 @@ interface Algorithm {
   spaceComplexity: string;
 }
 
+const CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'sorting', label: 'Sorting' },
+  { id: 'trees', label: 'Trees' },
+  { id: 'linear-structures', label: 'Linear' },
+  { id: 'graphs', label: 'Graphs' },
+  { id: 'dynamic-programming', label: 'Dynamic Programming' }
+];
+
+// Fallback logic to determine frontend UI styling since DB doesn't have it yet
+const getAlgoUIData = (slug: string) => {
+  const sorting = ['bubble-sort', 'selection-sort', 'insertion-sort', 'merge-sort', 'quick-sort'];
+  const linear = ['stack', 'queue', 'linked-list'];
+  const trees = ['avl-tree', 'binary-search']; // the image shows binary search as trees
+  const graphs = ['dijkstra', 'depth-first-search', 'breadth-first-search'];
+
+  let catLabel = 'Algorithm';
+  let colorVar = 'var(--text-muted)';
+  let Icon = Code2;
+  let difficulty = 'Medium';
+
+  if (sorting.includes(slug)) {
+    catLabel = 'Sorting';
+    colorVar = 'var(--accent-sorting)';
+    Icon = BarChart3;
+    difficulty = slug === 'quick-sort' || slug === 'merge-sort' ? 'Medium' : 'Easy';
+  } else if (trees.includes(slug)) {
+    catLabel = 'Trees';
+    colorVar = 'var(--accent-trees)';
+    Icon = GitBranch;
+    difficulty = slug === 'avl-tree' ? 'Hard' : 'Easy';
+  } else if (graphs.includes(slug)) {
+    catLabel = 'Graphs';
+    colorVar = 'var(--accent-graphs)';
+    Icon = Network;
+    difficulty = slug === 'dijkstra' ? 'Hard' : 'Medium';
+  } else if (linear.includes(slug)) {
+    catLabel = 'Linear';
+    colorVar = 'var(--accent-sorting)';
+    Icon = Layers;
+    difficulty = 'Easy';
+  }
+
+  return { catLabel, colorVar, Icon, difficulty };
+};
+
 export function AlgorithmsList() {
   const { t } = useTranslation();
-  const [searchParams] = useSearchParams();
-  const categoryFilter = searchParams.get('category');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentCategory = searchParams.get('category') || 'all';
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    const params: Record<string, string> = {};
-    if (categoryFilter) {
-      // We'd need the categoryId, but we only have slug. For now, fetch all.
-      // TODO: Add category slug filter to backend API
-    }
-
     api
-      .get<Algorithm[]>('/algorithms', { params })
+      .get<Algorithm[]>('/algorithms')
       .then((res) => setAlgorithms(res.data))
       .catch(() => setAlgorithms([]))
       .finally(() => setIsLoading(false));
-  }, [categoryFilter]);
+  }, []);
 
-  // Filter client-side by category slug if we have a filter
-  const filtered = categoryFilter
+  const handleCategoryClick = (catId: string) => {
+    if (catId === 'all') {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', catId);
+    }
+    setSearchParams(searchParams);
+  };
+
+  const filtered = currentCategory !== 'all'
     ? algorithms.filter((algo) => {
-        // Simple slug-based grouping
         const sortingSlugs = ['bubble-sort', 'selection-sort', 'insertion-sort', 'merge-sort', 'quick-sort'];
-        const linearSlugs = ['stack', 'queue'];
-        const treeSlugs = ['avl-tree'];
-
-        if (categoryFilter === 'sorting') return sortingSlugs.includes(algo.slug);
-        if (categoryFilter === 'linear-structures') return linearSlugs.includes(algo.slug);
-        if (categoryFilter === 'trees') return treeSlugs.includes(algo.slug);
+        const linearSlugs = ['stack', 'queue', 'linked-list'];
+        const treeSlugs = ['avl-tree', 'binary-search'];
+        
+        if (currentCategory === 'sorting') return sortingSlugs.includes(algo.slug);
+        if (currentCategory === 'linear-structures') return linearSlugs.includes(algo.slug);
+        if (currentCategory === 'trees') return treeSlugs.includes(algo.slug);
         return true;
       })
     : algorithms;
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>
-        {t('Algorithms')}
+    <div style={{ padding: '1rem 0' }}>
+      <h1 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '0.75rem' }}>
+        Algorithm Dashboard
       </h1>
-      {categoryFilter && (
-        <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>
-          {t('Filtered by')}: <strong style={{ color: '#6366f1' }}>{categoryFilter}</strong>
-          {' · '}
-          <Link to="/algorithms" style={{ color: '#10b981', fontSize: '0.9rem' }}>
-            {t('Show all')}
-          </Link>
-        </p>
-      )}
+      <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', maxWidth: '700px', lineHeight: 1.6, marginBottom: '2.5rem' }}>
+        Explore and master computer science concepts through interactive visualizations. 
+        Select an algorithm below to start learning.
+      </p>
 
-      {isLoading && <p style={{ color: '#64748b' }}>{t('Loading')}...</p>}
+      {/* Filter Pills */}
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
+        {CATEGORIES.map(cat => (
+          <button
+            key={cat.id}
+            onClick={() => handleCategoryClick(cat.id)}
+            className={`pill ${currentCategory === cat.id ? 'active' : ''}`}
+          >
+            {cat.label}
+          </button>
+        ))}
+      </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.25rem' }}>
+      {isLoading && <p style={{ color: 'var(--text-muted)' }}>{t('Loading')}...</p>}
+
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+        gap: '1.5rem' 
+      }}>
         {filtered.map((algo) => {
           const hasEngine = algo.slug in engineRegistry;
+          const { catLabel, colorVar, Icon, difficulty } = getAlgoUIData(algo.slug);
 
           return (
             <Link
               key={algo.id}
               to={hasEngine ? `/algorithms/${algo.slug}` : '#'}
-              style={{ textDecoration: 'none', color: 'inherit', opacity: hasEngine ? 1 : 0.5 }}
+              className={`algo-card ${!hasEngine ? 'disabled' : ''}`}
             >
-              <div
-                className="glass-panel"
-                style={{
-                  padding: '1.5rem',
-                  cursor: hasEngine ? 'pointer' : 'not-allowed',
-                  transition: 'transform 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  if (hasEngine) (e.currentTarget as HTMLElement).style.transform = 'translateY(-3px)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-                }}
-              >
-                <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.5rem' }}>
-                  {algo.name}
-                  {!hasEngine && <span style={{ fontSize: '0.75rem', color: '#f59e0b', marginLeft: '0.5rem' }}>Soon</span>}
-                </h3>
-                <p style={{ color: '#94a3b8', fontSize: '0.85rem', lineHeight: 1.5, marginBottom: '0.75rem' }}>
-                  {algo.shortDescription}
-                </p>
-                <div style={{ display: 'flex', gap: '1rem', fontSize: '0.8rem' }}>
-                  <span style={{ color: '#6366f1', fontWeight: '600' }}>
-                    ⏱ {algo.timeComplexity}
-                  </span>
-                  <span style={{ color: '#10b981', fontWeight: '600' }}>
-                    💾 {algo.spaceComplexity}
-                  </span>
-                </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+                <Icon size={24} style={{ color: colorVar }} />
+                <span className="difficulty-badge">{difficulty}</span>
+              </div>
+              
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {algo.name}
+                {!hasEngine && <span style={{ fontSize: '0.7rem', color: '#f59e0b', padding: '0.1rem 0.4rem', border: '1px solid #f59e0b', borderRadius: '4px' }}>Soon</span>}
+              </h3>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{catLabel}</span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
+                  Visualize <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>▷</span>
+                </span>
               </div>
             </Link>
           );
@@ -114,7 +161,7 @@ export function AlgorithmsList() {
       </div>
 
       {!isLoading && filtered.length === 0 && (
-        <p style={{ color: '#64748b', textAlign: 'center', marginTop: '2rem' }}>
+        <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: '4rem' }}>
           {t('No algorithms found')}
         </p>
       )}

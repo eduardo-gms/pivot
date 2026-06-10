@@ -1,0 +1,3 @@
+#!/usr/bin/expect -f
+spawn npx prisma migrate dev --name init
+expect eof

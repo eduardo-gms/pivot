@@ -33,7 +33,7 @@ server {
         try_files $uri $uri/ /index.html;
     }
     location /api/ {
-        proxy_pass REPLACE_BACKEND_URL/api/;
+        proxy_pass REPLACE_BACKEND_URL/;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
@@ -42,4 +42,4 @@ EOF
 
 EXPOSE 80
 
-CMD ["sh", "-c", "sed -i 's|REPLACE_BACKEND_URL|'\"${BACKEND_URL}\"'|g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+CMD ["sh", "-c", "BACKEND=${BACKEND_URL:-http://localhost:3000} && sed -i 's|REPLACE_BACKEND_URL|'\"${BACKEND}\"'|g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
