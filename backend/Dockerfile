@@ -44,4 +44,4 @@ RUN npm ci --omit=dev && npx prisma generate
 EXPOSE 3000
 
 # Start the server using the production build
-CMD [ "npm", "run", "start:prod" ]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:prod"]
