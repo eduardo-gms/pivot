@@ -108,6 +108,7 @@ jobs:
           azcliversion: latest
           inlineScript: |
             BACKEND_IMAGE="${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest"
+            ENV_ID=$(az containerapp env show -n ${{ env.ACA_ENVIRONMENT }} -g ${{ env.RESOURCE_GROUP }} --query id -o tsv)
 
             if az containerapp show \
                 --name ${{ env.BACKEND_APP }} \
@@ -133,7 +134,7 @@ jobs:
               az containerapp create \
                 --name ${{ env.BACKEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
-                --environment ${{ env.ACA_ENVIRONMENT }} \
+                --environment "$ENV_ID" \
                 --image "$BACKEND_IMAGE" \
                 --target-port 3000 \
                 --ingress internal \
@@ -152,6 +153,7 @@ jobs:
           azcliversion: latest
           inlineScript: |
             FRONTEND_IMAGE="${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
+            ENV_ID=$(az containerapp env show -n ${{ env.ACA_ENVIRONMENT }} -g ${{ env.RESOURCE_GROUP }} --query id -o tsv)
 
             if az containerapp show \
                 --name ${{ env.FRONTEND_APP }} \
@@ -169,7 +171,7 @@ jobs:
               az containerapp create \
                 --name ${{ env.FRONTEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
-                --environment ${{ env.ACA_ENVIRONMENT }} \
+                --environment "$ENV_ID" \
                 --image "$FRONTEND_IMAGE" \
                 --target-port 80 \
                 --ingress external \
