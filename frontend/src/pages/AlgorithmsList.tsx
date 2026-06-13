@@ -62,7 +62,7 @@ const getAlgoUIData = (slug: string) => {
 };
 
 export function AlgorithmsList() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const currentCategory = searchParams.get('category') || 'all';
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
@@ -75,7 +75,7 @@ export function AlgorithmsList() {
       .then((res) => setAlgorithms(res.data))
       .catch(() => setAlgorithms([]))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [i18n.language]);
 
   const handleCategoryClick = (catId: string) => {
     if (catId === 'all') {
@@ -86,27 +86,37 @@ export function AlgorithmsList() {
     setSearchParams(searchParams);
   };
 
-  const filtered = currentCategory !== 'all'
-    ? algorithms.filter((algo) => {
-        const sortingSlugs = ['bubble-sort', 'selection-sort', 'insertion-sort', 'merge-sort', 'quick-sort'];
-        const linearSlugs = ['stack', 'queue', 'linked-list'];
-        const treeSlugs = ['avl-tree', 'binary-search'];
-        
-        if (currentCategory === 'sorting') return sortingSlugs.includes(algo.slug);
-        if (currentCategory === 'linear-structures') return linearSlugs.includes(algo.slug);
-        if (currentCategory === 'trees') return treeSlugs.includes(algo.slug);
-        return true;
-      })
-    : algorithms;
+  const searchQuery = (searchParams.get('q') || '').toLowerCase();
+
+  const filtered = algorithms.filter((algo) => {
+    // 1. Text Search Filter
+    if (searchQuery) {
+      const matchName = algo.name.toLowerCase().includes(searchQuery);
+      const matchSlug = algo.slug.toLowerCase().includes(searchQuery);
+      if (!matchName && !matchSlug) return false;
+    }
+
+    // 2. Category Filter
+    if (currentCategory !== 'all') {
+      const sortingSlugs = ['bubble-sort', 'selection-sort', 'insertion-sort', 'merge-sort', 'quick-sort'];
+      const linearSlugs = ['stack', 'queue', 'linked-list'];
+      const treeSlugs = ['avl-tree', 'binary-search', 'priority-queue'];
+      
+      if (currentCategory === 'sorting' && !sortingSlugs.includes(algo.slug)) return false;
+      if (currentCategory === 'linear-structures' && !linearSlugs.includes(algo.slug)) return false;
+      if (currentCategory === 'trees' && !treeSlugs.includes(algo.slug)) return false;
+    }
+    
+    return true;
+  });
 
   return (
     <div style={{ padding: '1rem 0' }}>
       <h1 style={{ fontSize: '2.2rem', fontWeight: '800', marginBottom: '0.75rem' }}>
-        Algorithm Dashboard
+        {t('Welcome')}
       </h1>
       <p style={{ color: 'var(--text-muted)', fontSize: '1.05rem', maxWidth: '700px', lineHeight: 1.6, marginBottom: '2.5rem' }}>
-        Explore and master computer science concepts through interactive visualizations. 
-        Select an algorithm below to start learning.
+        {t('home_subtitle')}
       </p>
 
       {/* Filter Pills */}

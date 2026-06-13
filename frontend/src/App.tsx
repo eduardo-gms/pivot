@@ -1,78 +1,119 @@
-import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { LayoutDashboard, Library, Globe, Sun } from 'lucide-react';
-import { Home } from './pages/Home';
+import { Globe, Sun, Moon, Search } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { AlgorithmsList } from './pages/AlgorithmsList';
 import { AlgorithmView } from './pages/AlgorithmView';
-import { BlogView } from './pages/BlogView';
 
 function Header() {
-  const { i18n } = useTranslation();
-  const location = useLocation();
+  const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+
+  useEffect(() => {
+    setSearchTerm(searchParams.get('q') || '');
+  }, [searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/?q=${encodeURIComponent(searchTerm)}`);
+    } else {
+      navigate(`/`);
+    }
+  };
 
   const toggleLang = () => {
     const next = i18n.language === 'pt-BR' ? 'en' : 'pt-BR';
     i18n.changeLanguage(next);
   };
 
-  const isDashboard = location.pathname === '/algorithms';
+  const [isLight, setIsLight] = useState(() => localStorage.getItem('theme') === 'light');
+
+  useEffect(() => {
+    if (isLight) {
+      document.documentElement.classList.add('light');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.classList.remove('light');
+      localStorage.setItem('theme', 'dark');
+    }
+  }, [isLight]);
+
+  const toggleTheme = () => setIsLight(!isLight);
+
+
 
   return (
     <header
       style={{
-        display: 'flex',
+        display: 'grid',
+        gridTemplateColumns: '1fr 2fr 1fr',
         alignItems: 'center',
-        justifyContent: 'space-between',
         padding: '1.2rem 2rem',
         borderBottom: '1px solid var(--border-color)',
         marginBottom: '2.5rem',
       }}
     >
-      <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
-        <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <span style={{ color: 'var(--accent-sorting)' }}>{'</>'}</span>
-          Pivot
-        </h1>
-      </Link>
+      {/* Left: Logo */}
+      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+        <Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h1 style={{ fontSize: '1.25rem', fontWeight: '800', margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ color: 'var(--accent-sorting)' }}>{'</>'}</span>
+            Pivot
+          </h1>
+        </Link>
+      </div>
 
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <Link 
-          to="/algorithms" 
-          className={`nav-link ${isDashboard ? 'active' : ''}`}
-        >
-          <LayoutDashboard size={16} />
-          <span>Dashboard</span>
-        </Link>
-        <Link 
-          to="#" 
-          className="nav-link"
-          style={{ opacity: 0.5, cursor: 'not-allowed' }}
-        >
-          <Library size={16} />
-          <span>Blog</span>
-        </Link>
-        
-        <div style={{ width: '1px', height: '24px', background: 'var(--border-color)', margin: '0 0.5rem' }}></div>
-        
-        <button
-          onClick={toggleLang}
+      {/* Center: Search Bar */}
+      <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <form 
+          onSubmit={handleSearch}
           style={{ 
-            background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', 
-            display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' 
+            display: 'flex', alignItems: 'center', background: 'var(--surface)',
+            border: '1px solid var(--border-color)', borderRadius: '8px',
+            padding: '0.5rem 1rem', gap: '0.5rem', width: '100%', maxWidth: '500px'
           }}
         >
-          <Globe size={16} />
-          {i18n.language === 'pt-BR' ? 'PT' : 'EN'}
-        </button>
-        <button
-          style={{ 
-            background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', 
-            display: 'flex', alignItems: 'center' 
-          }}
-        >
-          <Sun size={18} />
-        </button>
-      </nav>
+          <Search size={18} style={{ color: 'var(--text-muted)' }} />
+          <input 
+            type="text" 
+            placeholder={t('Search algorithms')} 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              background: 'transparent', border: 'none', color: 'var(--text-main)',
+              outline: 'none', width: '100%', fontSize: '0.95rem'
+            }}
+          />
+        </form>
+      </div>
+
+      {/* Right: Controls */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <nav style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <button
+            onClick={toggleLang}
+            style={{ 
+              background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', 
+              display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem' 
+            }}
+          >
+            <Globe size={16} />
+            {i18n.language === 'pt-BR' ? 'PT' : 'EN'}
+          </button>
+          <button
+            onClick={toggleTheme}
+            style={{ 
+              background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', 
+              display: 'flex', alignItems: 'center' 
+            }}
+          >
+            {isLight ? <Moon size={18} /> : <Sun size={18} />}
+          </button>
+        </nav>
+      </div>
     </header>
   );
 }
@@ -83,10 +124,8 @@ function App() {
       <Header />
       <main className="page-container" style={{ paddingBottom: '3rem' }}>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/algorithms" element={<AlgorithmsList />} />
+          <Route path="/" element={<AlgorithmsList />} />
           <Route path="/algorithms/:slug" element={<AlgorithmView />} />
-          <Route path="/blog/:slug" element={<BlogView />} />
         </Routes>
       </main>
     </BrowserRouter>

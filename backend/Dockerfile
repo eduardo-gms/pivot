@@ -39,7 +39,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
 # Install production dependencies and generate Prisma client
-RUN npm ci --omit=dev && npx prisma generate
+RUN npm ci --omit=dev && npm install ts-node typescript && npx prisma generate
 
 EXPOSE 3000
 

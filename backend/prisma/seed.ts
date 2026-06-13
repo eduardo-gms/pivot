@@ -231,10 +231,10 @@ async function main() {
   // 5. ARTICLES
   // ──────────────────────────────────────────────────
   await prisma.article.upsert({
-    where: { slug: 'understanding-bubble-sort' },
+    where: { slug: 'bubble-sort' },
     update: {},
     create: {
-      slug: 'understanding-bubble-sort',
+      slug: 'bubble-sort',
       algorithmId: bubbleSort.id,
       isPublished: true,
       translations: {
@@ -259,7 +259,7 @@ async function main() {
   console.log('✅ Seeding finished successfully.');
   console.log('   Categories: sorting, linear-structures, trees');
   console.log('   Algorithms: bubble-sort, selection-sort, insertion-sort, merge-sort, quick-sort, stack, queue, linked-list, avl-tree, priority-queue');
-  console.log('   Articles: understanding-bubble-sort');
+  console.log('   Articles: bubble-sort');
 }
 
 main()

@@ -6,10 +6,11 @@ const resources = {
     translation: {
       // Navigation
       "Welcome": "Welcome to Pivot",
-      "home_subtitle": "Interactive step-by-step visualizer for Algorithms and Data Structures",
+      "home_subtitle": "Explore and master computer science concepts through interactive visualizations. Select an algorithm below to see the magic happen step by step.",
       "Algorithms": "Algorithms",
       "Blog": "Blog",
       "Home": "Home",
+      "Search algorithms": "Search algorithms...",
 
       // Categories
       "Sorting Algorithms": "Sorting Algorithms",
@@ -115,10 +116,11 @@ const resources = {
     translation: {
       // Navegação
       "Welcome": "Bem-vindo ao Pivot",
-      "home_subtitle": "Simulador visual passo a passo de Algoritmos e Estruturas de Dados",
+      "home_subtitle": "Explore e domine conceitos de ciência da computação através de visualizações interativas. Selecione um algoritmo abaixo para ver a mágica acontecer passo a passo.",
       "Algorithms": "Algoritmos",
       "Blog": "Blog",
       "Home": "Início",
+      "Search algorithms": "Buscar algoritmos...",
 
       // Categorias
       "Sorting Algorithms": "Algoritmos de Ordenação",
