@@ -1,5 +1,5 @@
 # Base image for building the app
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Create app directory
 WORKDIR /app
@@ -33,7 +33,7 @@ server {
         try_files $uri $uri/ /index.html;
     }
     location /api/ {
-        proxy_pass REPLACE_BACKEND_URL/;
+        proxy_pass REPLACE_BACKEND_URL;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }

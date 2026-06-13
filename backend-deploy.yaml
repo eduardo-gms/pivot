@@ -3,13 +3,12 @@ name: pivot-backend
 resourceGroup: rg-pivot-app
 type: Microsoft.App/containerApps
 properties:
-  environmentId: /subscriptions/cc30f46e-0491-412c-a68e-2173676fb442/resourceGroups/rg-pivot-app/providers/Microsoft.App/managedEnvironments/env-pivot-prod
   configuration:
     secrets:
       - name: database-url
         value: "REPLACE_WITH_SECRET_VALUE_IN_PORTAL"
     ingress:
-      external: true
+      external: false
       targetPort: 3000
       allowInsecure: false
       traffic:
@@ -29,8 +28,6 @@ properties:
             secretRef: database-url
           - name: PORT
             value: "3000"
-          - name: CORS_ORIGIN
-            value: "https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
     scale:
-      minReplicas: 1
+      minReplicas: 0
       maxReplicas: 1

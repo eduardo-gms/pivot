@@ -112,8 +112,7 @@ jobs:
               --image ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:latest \
               --set-env-vars \
                 DATABASE_URL=secretref:database-url \
-                PORT=3000 \
-                CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io
+                PORT=3000
 
       - name: Deploy Frontend to Container Apps
         uses: azure/cli@v2
@@ -125,4 +124,4 @@ jobs:
               --resource-group rg-pivot-app \
               --image ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest \
               --set-env-vars \
-                BACKEND_URL=https://pivot-backend.whitecliff-325dad00.eastus2.azurecontainerapps.io
+                BACKEND_URL=http://pivot-backend

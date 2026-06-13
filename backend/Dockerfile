@@ -1,5 +1,5 @@
 # Base image
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 
 # Install OpenSSL for Prisma
 RUN apk add --no-cache openssl
@@ -26,7 +26,7 @@ RUN npm run build
 # ---
 
 # Production image
-FROM node:18-alpine
+FROM node:20-alpine
 
 # Install OpenSSL for Prisma in production
 RUN apk add --no-cache openssl
@@ -39,7 +39,7 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 
 # Install production dependencies and generate Prisma client
-RUN npm ci --omit=dev && npm install ts-node typescript && npx prisma generate
+RUN npm ci --omit=dev && npx prisma generate
 
 EXPOSE 3000
 
