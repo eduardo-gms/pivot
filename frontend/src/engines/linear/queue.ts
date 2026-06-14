@@ -1,14 +1,14 @@
 import { SimulationStep, QueueData, QueueOperation } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `queue-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for Queue (FIFO) operations.
  * Takes a sequence of enqueue/dequeue operations.
  */
 export function generateQueueSteps(operations: QueueOperation[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `queue-${++stepCounter}`;
   const queue: number[] = [];
   const steps: SimulationStep[] = [];
 

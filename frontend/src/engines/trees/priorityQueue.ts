@@ -1,10 +1,10 @@
 import { SimulationStep, TreeData, TreeNode, TreeOperation } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `pq-${++stepCounter}`;
 
 export function generatePriorityQueueSteps(operations: TreeOperation[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `pq-${++stepCounter}`;
   const steps: SimulationStep[] = [];
   const heap: number[] = [];
 

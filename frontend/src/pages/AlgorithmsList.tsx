@@ -34,7 +34,7 @@ export function AlgorithmsList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentCategory = searchParams.get('category') || 'all';
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
-  const [categories, setCategories] = useState<{ id: string, label: string }[]>([{ id: 'all', label: 'All' }]);
+  const [categories, setCategories] = useState<{ id: string, slug: string, label: string }[]>([{ id: 'all', slug: 'all', label: 'All' }]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -46,8 +46,8 @@ export function AlgorithmsList() {
     ])
       .then(([algoRes, catRes]) => {
         setAlgorithms(algoRes.data);
-        const dynamicCats = catRes.data.map(c => ({ id: c.id, label: c.name }));
-        setCategories([{ id: 'all', label: 'All' }, ...dynamicCats]);
+        const dynamicCats = catRes.data.map(c => ({ id: c.id, slug: c.slug, label: c.name }));
+        setCategories([{ id: 'all', slug: 'all', label: 'All' }, ...dynamicCats]);
       })
       .catch(() => {
         setAlgorithms([]);
@@ -55,11 +55,11 @@ export function AlgorithmsList() {
       .finally(() => setIsLoading(false));
   }, [i18n.language]);
 
-  const handleCategoryClick = (catId: string) => {
-    if (catId === 'all') {
+  const handleCategoryClick = (catSlug: string) => {
+    if (catSlug === 'all') {
       searchParams.delete('category');
     } else {
-      searchParams.set('category', catId);
+      searchParams.set('category', catSlug);
     }
     setSearchParams(searchParams);
   };
@@ -76,7 +76,8 @@ export function AlgorithmsList() {
 
     // 2. Category Filter
     if (currentCategory !== 'all') {
-      if (algo.categoryId !== currentCategory) return false;
+      const foundCategory = categories.find(c => c.slug === currentCategory);
+      if (foundCategory && algo.categoryId !== foundCategory.id) return false;
     }
     
     return true;
@@ -96,8 +97,8 @@ export function AlgorithmsList() {
         {categories.map(cat => (
           <button
             key={cat.id}
-            onClick={() => handleCategoryClick(cat.id)}
-            className={`pill ${currentCategory === cat.id ? 'active' : ''}`}
+            onClick={() => handleCategoryClick(cat.slug)}
+            className={`pill ${currentCategory === cat.slug ? 'active' : ''}`}
           >
             {cat.label}
           </button>

@@ -1,14 +1,14 @@
 import { SimulationStep, ArrayData } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `bubble-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for the Bubble Sort algorithm.
  * Each comparison and swap produces a snapshot.
  */
 export function generateBubbleSortSteps(input: number[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `bubble-${++stepCounter}`;
   const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 

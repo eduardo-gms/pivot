@@ -1,14 +1,14 @@
 import { SimulationStep, ArrayData } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `quick-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for the Quick Sort algorithm.
  * Uses Lomuto partition scheme with last element as pivot.
  */
 export function generateQuickSortSteps(input: number[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `quick-${++stepCounter}`;
   const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 

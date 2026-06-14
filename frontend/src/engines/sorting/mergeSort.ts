@@ -1,7 +1,5 @@
 import { SimulationStep, ArrayData } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `merge-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for the Merge Sort algorithm.
@@ -9,7 +7,9 @@ const makeId = () => `merge-${++stepCounter}`;
  * with highlighted subarrays to indicate the current merge window.
  */
 export function generateMergeSortSteps(input: number[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `merge-${++stepCounter}`;
   const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 

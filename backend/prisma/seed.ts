@@ -256,10 +256,40 @@ async function main() {
     },
   });
 
+  const otherAlgos = await prisma.algorithm.findMany({ where: { slug: { not: 'bubble-sort' } } });
+  for (const algo of otherAlgos) {
+    const name = algo.slug.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    await prisma.article.upsert({
+      where: { slug: algo.slug },
+      update: {},
+      create: {
+        slug: algo.slug,
+        algorithmId: algo.id,
+        isPublished: true,
+        translations: {
+          create: [
+            {
+              locale: 'en',
+              title: `Understanding ${name}`,
+              content: `# Coming Soon\n\nDetailed content for ${name} is currently being written. Stay tuned!`,
+              seoDescription: `Learn about the ${name} algorithm and data structure.`,
+            },
+            {
+              locale: 'pt-BR',
+              title: `Entendendo ${name}`,
+              content: `# Em Breve\n\nO conteúdo detalhado para ${name} está sendo escrito. Fique ligado!`,
+              seoDescription: `Aprenda sobre o algoritmo e estrutura de dados ${name}.`,
+            },
+          ],
+        },
+      },
+    });
+  }
+
   console.log('✅ Seeding finished successfully.');
   console.log('   Categories: sorting, linear-structures, trees');
   console.log('   Algorithms: bubble-sort, selection-sort, insertion-sort, merge-sort, quick-sort, stack, queue, linked-list, avl-tree, priority-queue');
-  console.log('   Articles: bubble-sort');
+  console.log('   Articles: bubble-sort + placeholders for others');
 }
 
 main()

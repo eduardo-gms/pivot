@@ -1,14 +1,14 @@
 import { SimulationStep, ArrayData } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `insertion-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for the Insertion Sort algorithm.
  * Builds a sorted sub-array one element at a time.
  */
 export function generateInsertionSortSteps(input: number[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `insertion-${++stepCounter}`;
   const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 

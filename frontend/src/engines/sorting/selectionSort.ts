@@ -1,14 +1,14 @@
 import { SimulationStep, ArrayData } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `selection-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for the Selection Sort algorithm.
  * Finds the minimum in the unsorted portion and swaps it to the front.
  */
 export function generateSelectionSortSteps(input: number[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `selection-${++stepCounter}`;
   const arr = input.map((value, index) => ({ id: `val-${value}-${index}`, value }));
   const steps: SimulationStep[] = [];
 

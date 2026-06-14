@@ -1,14 +1,14 @@
 import { SimulationStep, StackData, StackOperation } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `stack-${++stepCounter}`;
 
 /**
  * Generates SimulationStep[] for Stack (LIFO) operations.
  * Takes a sequence of push/pop operations and creates snapshots for each.
  */
 export function generateStackSteps(operations: StackOperation[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `stack-${++stepCounter}`;
   const stack: number[] = [];
   const steps: SimulationStep[] = [];
 

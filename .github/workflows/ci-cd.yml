@@ -125,10 +125,12 @@ jobs:
                 --name ${{ env.BACKEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
                 --image "$BACKEND_IMAGE" \
+                --min-replicas 1 \
+                --max-replicas 1 \
                 --set-env-vars \
                   "DATABASE_URL=secretref:database-url" \
                   "PORT=3000" \
-                  "CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+                  "CORS_ORIGIN=${{ vars.FRONTEND_URL }}"
             else
               echo ">>> Backend nao existe — criando..."
               az containerapp create \
@@ -138,7 +140,7 @@ jobs:
                 --image "$BACKEND_IMAGE" \
                 --target-port 3000 \
                 --ingress internal \
-                --min-replicas 0 \
+                --min-replicas 1 \
                 --max-replicas 1 \
                 --liveness-probe-path /api/health \
                 --readiness-probe-path /api/health \
@@ -146,7 +148,7 @@ jobs:
                 --env-vars \
                   "DATABASE_URL=secretref:database-url" \
                   "PORT=3000" \
-                  "CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+                  "CORS_ORIGIN=${{ vars.FRONTEND_URL }}"
             fi
 
       - name: Deploy Frontend (create or update)
@@ -167,6 +169,8 @@ jobs:
                 --name ${{ env.FRONTEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
                 --image "$FRONTEND_IMAGE" \
+                --min-replicas 1 \
+                --max-replicas 1 \
                 --set-env-vars "BACKEND_URL=http://pivot-backend"
             else
               echo ">>> Frontend nao existe — criando..."
@@ -177,7 +181,7 @@ jobs:
                 --image "$FRONTEND_IMAGE" \
                 --target-port 80 \
                 --ingress external \
-                --min-replicas 0 \
+                --min-replicas 1 \
                 --max-replicas 1 \
                 --env-vars "BACKEND_URL=http://pivot-backend"
             fi

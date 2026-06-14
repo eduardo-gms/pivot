@@ -1,7 +1,5 @@
 import { SimulationStep, TreeData, TreeNode, TreeOperation } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `avl-${++stepCounter}`;
 
 class Node {
   id: string;
@@ -17,7 +15,9 @@ class Node {
 }
 
 export function generateAVLTreeSteps(operations: TreeOperation[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `avl-${++stepCounter}`;
   let root: Node | null = null;
   const steps: SimulationStep[] = [];
 

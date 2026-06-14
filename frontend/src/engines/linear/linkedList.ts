@@ -1,10 +1,10 @@
 import { SimulationStep, LinkedListData, LinkedListNode, LinkedListOperation } from '../types';
 
-let stepCounter = 0;
-const makeId = () => `ll-${++stepCounter}`;
 
 export function generateLinkedListSteps(operations: LinkedListOperation[]): SimulationStep[] {
-  stepCounter = 0;
+  let stepCounter = 0;
+
+  const makeId = () => `ll-${++stepCounter}`;
   const steps: SimulationStep[] = [];
   const nodes: LinkedListNode[] = [];
   let headId: string | null = null;

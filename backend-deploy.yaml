@@ -24,12 +24,12 @@ properties:
           - sh
         args:
           - "-c"
-          - "npx prisma migrate deploy && npm run start:prod"
+          - "npx prisma migrate deploy && node prisma/seed.js && npm run start:prod"
         env:
           - name: DATABASE_URL
             secretRef: database-url
           - name: PORT
             value: "3000"
     scale:
-      minReplicas: 0
+      minReplicas: 1
       maxReplicas: 1
