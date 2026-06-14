@@ -15,50 +15,18 @@ interface Algorithm {
   spaceComplexity: string;
 }
 
-const CATEGORIES = [
-  { id: 'all', label: 'All' },
-  { id: 'sorting', label: 'Sorting' },
-  { id: 'trees', label: 'Trees' },
-  { id: 'linear-structures', label: 'Linear' },
-  { id: 'graphs', label: 'Graphs' },
-  { id: 'dynamic-programming', label: 'Dynamic Programming' }
-];
+interface Category {
+  id: string;
+  slug: string;
+  name: string;
+}
 
-// Fallback logic to determine frontend UI styling since DB doesn't have it yet
-const getAlgoUIData = (slug: string) => {
-  const sorting = ['bubble-sort', 'selection-sort', 'insertion-sort', 'merge-sort', 'quick-sort'];
-  const linear = ['stack', 'queue', 'linked-list'];
-  const trees = ['avl-tree', 'binary-search']; // the image shows binary search as trees
-  const graphs = ['dijkstra', 'depth-first-search', 'breadth-first-search'];
-
-  let catLabel = 'Algorithm';
-  let colorVar = 'var(--text-muted)';
-  let Icon = Code2;
-  let difficulty = 'Medium';
-
-  if (sorting.includes(slug)) {
-    catLabel = 'Sorting';
-    colorVar = 'var(--accent-sorting)';
-    Icon = BarChart3;
-    difficulty = slug === 'quick-sort' || slug === 'merge-sort' ? 'Medium' : 'Easy';
-  } else if (trees.includes(slug)) {
-    catLabel = 'Trees';
-    colorVar = 'var(--accent-trees)';
-    Icon = GitBranch;
-    difficulty = slug === 'avl-tree' ? 'Hard' : 'Easy';
-  } else if (graphs.includes(slug)) {
-    catLabel = 'Graphs';
-    colorVar = 'var(--accent-graphs)';
-    Icon = Network;
-    difficulty = slug === 'dijkstra' ? 'Hard' : 'Medium';
-  } else if (linear.includes(slug)) {
-    catLabel = 'Linear';
-    colorVar = 'var(--accent-sorting)';
-    Icon = Layers;
-    difficulty = 'Easy';
-  }
-
-  return { catLabel, colorVar, Icon, difficulty };
+const IconMap = {
+  BarChart3,
+  GitBranch,
+  Network,
+  Layers,
+  Code2
 };
 
 export function AlgorithmsList() {
@@ -66,14 +34,24 @@ export function AlgorithmsList() {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentCategory = searchParams.get('category') || 'all';
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
+  const [categories, setCategories] = useState<{ id: string, label: string }[]>([{ id: 'all', label: 'All' }]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     setIsLoading(true);
-    api
-      .get<Algorithm[]>('/algorithms')
-      .then((res) => setAlgorithms(res.data))
-      .catch(() => setAlgorithms([]))
+    
+    Promise.all([
+      api.get<Algorithm[]>('/algorithms'),
+      api.get<Category[]>('/categories')
+    ])
+      .then(([algoRes, catRes]) => {
+        setAlgorithms(algoRes.data);
+        const dynamicCats = catRes.data.map(c => ({ id: c.id, label: c.name }));
+        setCategories([{ id: 'all', label: 'All' }, ...dynamicCats]);
+      })
+      .catch(() => {
+        setAlgorithms([]);
+      })
       .finally(() => setIsLoading(false));
   }, [i18n.language]);
 
@@ -98,13 +76,7 @@ export function AlgorithmsList() {
 
     // 2. Category Filter
     if (currentCategory !== 'all') {
-      const sortingSlugs = ['bubble-sort', 'selection-sort', 'insertion-sort', 'merge-sort', 'quick-sort'];
-      const linearSlugs = ['stack', 'queue', 'linked-list'];
-      const treeSlugs = ['avl-tree', 'binary-search', 'priority-queue'];
-      
-      if (currentCategory === 'sorting' && !sortingSlugs.includes(algo.slug)) return false;
-      if (currentCategory === 'linear-structures' && !linearSlugs.includes(algo.slug)) return false;
-      if (currentCategory === 'trees' && !treeSlugs.includes(algo.slug)) return false;
+      if (algo.categoryId !== currentCategory) return false;
     }
     
     return true;
@@ -121,7 +93,7 @@ export function AlgorithmsList() {
 
       {/* Filter Pills */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '3rem' }}>
-        {CATEGORIES.map(cat => (
+        {categories.map(cat => (
           <button
             key={cat.id}
             onClick={() => handleCategoryClick(cat.id)}
@@ -140,8 +112,13 @@ export function AlgorithmsList() {
         gap: '1.5rem' 
       }}>
         {filtered.map((algo) => {
-          const hasEngine = algo.slug in engineRegistry;
-          const { catLabel, colorVar, Icon, difficulty } = getAlgoUIData(algo.slug);
+          const engine = engineRegistry[algo.slug];
+          const hasEngine = !!engine;
+          
+          const catLabel = engine?.ui.catLabel || 'Algorithm';
+          const colorVar = engine?.ui.colorVar || 'var(--text-muted)';
+          const Icon = engine ? IconMap[engine.ui.icon] : Code2;
+          const difficulty = engine?.ui.difficulty || 'Medium';
 
           return (
             <Link

@@ -8,7 +8,7 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL
-      - CORS_ORIGIN=https://pivot-frontend.azurecontainerapps.io
+      - CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io
       - PORT=3000
     command: >
       sh -c "npx prisma migrate deploy && npm run start:prod"

@@ -101,12 +101,29 @@ export interface TreeOperation {
   value?: number;
 }
 
+/** Union for strongly typed default inputs */
+export type EngineDefaultInput =
+  | { type: 'array'; data: number[] }
+  | { type: 'stack'; data: StackOperation[] }
+  | { type: 'queue'; data: QueueOperation[] }
+  | { type: 'linked-list'; data: LinkedListOperation[] }
+  | { type: 'tree'; data: TreeOperation[] };
+
 /** Signature for any algorithm engine function that works on arrays */
 export type SortingEngineFunction = (input: number[]) => SimulationStep[];
+
+/** UI Metadata for an engine */
+export interface EngineUI {
+  catLabel: string;
+  colorVar: string;
+  icon: 'BarChart3' | 'GitBranch' | 'Network' | 'Layers' | 'Code2';
+  difficulty: 'Easy' | 'Medium' | 'Hard';
+}
 
 /** Registry entry for an engine */
 export interface EngineEntry {
   slug: string;
   dataType: DataType;
+  ui: EngineUI;
   generate: (input: any) => SimulationStep[];
 }

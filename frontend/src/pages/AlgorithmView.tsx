@@ -56,10 +56,10 @@ export function AlgorithmView() {
 
     const defaultInput = getDefaultInput(slug);
     if (defaultInput) {
-      if (engine.dataType === 'array') {
-        setInputText((defaultInput as number[]).join(', '));
+      if (engine.dataType === 'array' && defaultInput.type === 'array') {
+        setInputText(defaultInput.data.join(', '));
       }
-      runSimulation(defaultInput);
+      runSimulation(defaultInput.data);
     }
 
     return () => reset();

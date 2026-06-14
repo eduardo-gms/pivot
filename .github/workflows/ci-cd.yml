@@ -128,7 +128,7 @@ jobs:
                 --set-env-vars \
                   "DATABASE_URL=secretref:database-url" \
                   "PORT=3000" \
-                  "CORS_ORIGIN=*"
+                  "CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
             else
               echo ">>> Backend nao existe — criando..."
               az containerapp create \
@@ -140,11 +140,13 @@ jobs:
                 --ingress internal \
                 --min-replicas 0 \
                 --max-replicas 1 \
+                --liveness-probe-path /api/health \
+                --readiness-probe-path /api/health \
                 --secrets "database-url=$DATABASE_URL" \
                 --env-vars \
                   "DATABASE_URL=secretref:database-url" \
                   "PORT=3000" \
-                  "CORS_ORIGIN=*"
+                  "CORS_ORIGIN=https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
             fi
 
       - name: Deploy Frontend (create or update)

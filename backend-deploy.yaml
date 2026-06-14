@@ -5,8 +5,10 @@ type: Microsoft.App/containerApps
 properties:
   configuration:
     secrets:
+      # O segredo real (database-url) é injetado pelo GitHub Actions via 'az containerapp secret set'.
+      # Este valor no YAML serve apenas de placeholder estrutural.
       - name: database-url
-        value: "REPLACE_WITH_SECRET_VALUE_IN_PORTAL"
+        value: "<gerado-pelo-ci>"
     ingress:
       external: false
       targetPort: 3000
