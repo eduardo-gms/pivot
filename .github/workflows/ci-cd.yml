@@ -88,10 +88,38 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
+  migrate:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      - name: Run Prisma Generate and Migrations
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy
+          npm run seed
+
   deploy:
     name: Deploy to Azure Container Apps
     runs-on: ubuntu-latest
-    needs: [build-frontend, build-backend]
+    needs: [build-frontend, build-backend, migrate]
     if: github.event_name != 'pull_request'
 
     steps:
@@ -104,6 +132,7 @@ jobs:
         uses: azure/cli@v2
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
         with:
           azcliversion: latest
           inlineScript: |
@@ -119,16 +148,17 @@ jobs:
               az containerapp secret set \
                 --name ${{ env.BACKEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
-                --secrets "database-url=$DATABASE_URL"
+                --secrets "database-url=$DATABASE_URL" "direct-url=$DIRECT_URL"
 
               az containerapp update \
                 --name ${{ env.BACKEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
                 --image "$BACKEND_IMAGE" \
-                --min-replicas 1 \
+                --min-replicas 0 \
                 --max-replicas 1 \
                 --set-env-vars \
                   "DATABASE_URL=secretref:database-url" \
+                  "DIRECT_URL=secretref:direct-url" \
                   "PORT=3000" \
                   "CORS_ORIGIN=${{ vars.FRONTEND_URL }}"
             else
@@ -140,13 +170,14 @@ jobs:
                 --image "$BACKEND_IMAGE" \
                 --target-port 3000 \
                 --ingress internal \
-                --min-replicas 1 \
+                --min-replicas 0 \
                 --max-replicas 1 \
                 --liveness-probe-path /api/health \
                 --readiness-probe-path /api/health \
-                --secrets "database-url=$DATABASE_URL" \
+                --secrets "database-url=$DATABASE_URL" "direct-url=$DIRECT_URL" \
                 --env-vars \
                   "DATABASE_URL=secretref:database-url" \
+                  "DIRECT_URL=secretref:direct-url" \
                   "PORT=3000" \
                   "CORS_ORIGIN=${{ vars.FRONTEND_URL }}"
             fi
@@ -169,7 +200,7 @@ jobs:
                 --name ${{ env.FRONTEND_APP }} \
                 --resource-group ${{ env.RESOURCE_GROUP }} \
                 --image "$FRONTEND_IMAGE" \
-                --min-replicas 1 \
+                --min-replicas 0 \
                 --max-replicas 1 \
                 --set-env-vars "BACKEND_URL=http://pivot-backend"
             else
@@ -181,7 +212,7 @@ jobs:
                 --image "$FRONTEND_IMAGE" \
                 --target-port 80 \
                 --ingress external \
-                --min-replicas 1 \
+                --min-replicas 0 \
                 --max-replicas 1 \
                 --env-vars "BACKEND_URL=http://pivot-backend"
             fi

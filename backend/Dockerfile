@@ -40,5 +40,5 @@ RUN npm ci --omit=dev && npx prisma generate
 
 EXPOSE 3000
 
-# Usa node direto — sem ts-node, sem npx prisma db seed
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && npm run start:prod"]
+# Inicia a aplicacao diretamente
+CMD ["npm", "run", "start:prod"]
