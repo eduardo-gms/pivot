@@ -11,7 +11,7 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:80}
       - PORT=3000
     command: >
-      sh -c "npx prisma migrate deploy && npm run start:prod"
+      sh -c "npm run start:prod"
 
 
   frontend:

@@ -22,11 +22,6 @@ properties:
     containers:
       - name: pivot-backend
         image: ghcr.io/eduardo-gms/pivot-backend:latest
-        command:
-          - sh
-        args:
-          - "-c"
-          - "npx prisma migrate deploy && npm run start:prod"
         env:
           - name: DATABASE_URL
             secretRef: database-url

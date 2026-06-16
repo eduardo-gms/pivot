@@ -106,14 +106,26 @@ jobs:
         working-directory: ./backend
         run: npm ci
 
-      - name: Run Prisma Generate and Migrations
+      - name: Wake up Neon database
         working-directory: ./backend
         env:
           DATABASE_URL: ${{ secrets.DIRECT_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
           npx prisma generate
-          npx prisma migrate deploy
+          node -e "
+            const { PrismaClient } = require('./node_modules/.prisma/client');
+            const p = new PrismaClient();
+            p.\$queryRaw\`SELECT 1\`.then(() => { console.log('✅ Database is awake'); p.\$disconnect(); }).catch(e => { console.warn('⚠️ Wake-up query failed, continuing...', e.message); p.\$disconnect(); });
+          "
+          sleep 3
+
+      - name: Run Prisma Migrations
+        working-directory: ./backend
+        env:
+          DATABASE_URL: "${{ secrets.DIRECT_URL }}&connect_timeout=30"
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: npx prisma migrate deploy
 
       - name: Run Seed
         working-directory: ./backend
