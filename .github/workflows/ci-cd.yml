@@ -200,6 +200,19 @@ jobs:
                   "CORS_ORIGIN=${{ vars.FRONTEND_URL }}"
             fi
 
+      - name: Get Backend FQDN
+        uses: azure/cli@v2
+        id: backend-fqdn
+        with:
+          azcliversion: latest
+          inlineScript: |
+            FQDN=$(az containerapp show \
+              --name ${{ env.BACKEND_APP }} \
+              --resource-group ${{ env.RESOURCE_GROUP }} \
+              --query properties.configuration.ingress.fqdn -o tsv)
+            echo "BACKEND_FQDN=$FQDN" >> $GITHUB_OUTPUT
+            echo "Backend FQDN: $FQDN"
+
       - name: Deploy Frontend (create or update)
         uses: azure/cli@v2
         with:
@@ -207,6 +220,7 @@ jobs:
           inlineScript: |
             FRONTEND_IMAGE="${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:latest"
             ENV_ID=$(az containerapp env show -n ${{ env.ACA_ENVIRONMENT }} -g ${{ env.RESOURCE_GROUP }} --query id -o tsv)
+            BACKEND_URL="https://${{ steps.backend-fqdn.outputs.BACKEND_FQDN }}"
 
             if az containerapp show \
                 --name ${{ env.FRONTEND_APP }} \
@@ -220,7 +234,7 @@ jobs:
                 --image "$FRONTEND_IMAGE" \
                 --min-replicas 0 \
                 --max-replicas 1 \
-                --set-env-vars "BACKEND_URL=http://pivot-backend.internal.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+                --set-env-vars "BACKEND_URL=$BACKEND_URL"
             else
               echo ">>> Frontend nao existe — criando..."
               az containerapp create \
@@ -232,5 +246,5 @@ jobs:
                 --ingress external \
                 --min-replicas 0 \
                 --max-replicas 1 \
-                --env-vars "BACKEND_URL=http://pivot-backend.internal.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+                --env-vars "BACKEND_URL=$BACKEND_URL"
             fi

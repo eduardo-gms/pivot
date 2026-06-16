@@ -17,7 +17,7 @@ properties:
         image: ghcr.io/eduardo-gms/pivot-frontend:latest
         env:
           - name: BACKEND_URL
-            value: "http://pivot-backend.internal.whitecliff-325dad00.eastus2.azurecontainerapps.io"
+            value: "https://pivot-backend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
     scale:
       minReplicas: 0
       maxReplicas: 1
