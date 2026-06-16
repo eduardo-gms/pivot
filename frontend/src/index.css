@@ -177,6 +177,15 @@ a:hover {
   padding: 0 2rem;
 }
 
+/* Glass Panel — used by simulation area, player controls, input bar */
+.glass-panel {
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
 /* Markdown Prose Styles */
 .prose h1, .prose h2, .prose h3 {
   color: var(--text-main);

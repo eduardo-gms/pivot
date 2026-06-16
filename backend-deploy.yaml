@@ -5,12 +5,14 @@ type: Microsoft.App/containerApps
 properties:
   configuration:
     secrets:
-      # O segredo real (database-url) é injetado pelo GitHub Actions via 'az containerapp secret set'.
-      # Este valor no YAML serve apenas de placeholder estrutural.
+      # Os segredos reais são injetados pelo GitHub Actions via 'az containerapp secret set'.
+      # Estes valores no YAML servem apenas de placeholder estrutural.
       - name: database-url
         value: "<gerado-pelo-ci>"
+      - name: direct-url
+        value: "<gerado-pelo-ci>"
     ingress:
-      external: false
+      external: true
       targetPort: 3000
       allowInsecure: false
       traffic:
@@ -24,12 +26,16 @@ properties:
           - sh
         args:
           - "-c"
-          - "npx prisma migrate deploy && node prisma/seed.js && npm run start:prod"
+          - "npx prisma migrate deploy && npm run start:prod"
         env:
           - name: DATABASE_URL
             secretRef: database-url
+          - name: DIRECT_URL
+            secretRef: direct-url
           - name: PORT
             value: "3000"
+          - name: CORS_ORIGIN
+            value: "https://pivot-frontend.whitecliff-325dad00.eastus2.azurecontainerapps.io"
     scale:
-      minReplicas: 1
+      minReplicas: 0
       maxReplicas: 1

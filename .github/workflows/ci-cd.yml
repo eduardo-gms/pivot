@@ -109,12 +109,18 @@ jobs:
       - name: Run Prisma Generate and Migrations
         working-directory: ./backend
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL: ${{ secrets.DIRECT_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
         run: |
           npx prisma generate
           npx prisma migrate deploy
-          npm run seed
+
+      - name: Run Seed
+        working-directory: ./backend
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+        run: npm run seed
 
   deploy:
     name: Deploy to Azure Container Apps
@@ -169,7 +175,7 @@ jobs:
                 --environment "$ENV_ID" \
                 --image "$BACKEND_IMAGE" \
                 --target-port 3000 \
-                --ingress internal \
+                --ingress external \
                 --min-replicas 0 \
                 --max-replicas 1 \
                 --liveness-probe-path /api/health \
@@ -202,7 +208,7 @@ jobs:
                 --image "$FRONTEND_IMAGE" \
                 --min-replicas 0 \
                 --max-replicas 1 \
-                --set-env-vars "BACKEND_URL=http://pivot-backend"
+                --set-env-vars "BACKEND_URL=http://pivot-backend.internal.whitecliff-325dad00.eastus2.azurecontainerapps.io"
             else
               echo ">>> Frontend nao existe — criando..."
               az containerapp create \
@@ -214,5 +220,5 @@ jobs:
                 --ingress external \
                 --min-replicas 0 \
                 --max-replicas 1 \
-                --env-vars "BACKEND_URL=http://pivot-backend"
+                --env-vars "BACKEND_URL=http://pivot-backend.internal.whitecliff-325dad00.eastus2.azurecontainerapps.io"
             fi

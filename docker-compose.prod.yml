@@ -1,4 +1,3 @@
-version: '3.8'
 
 services:
   backend:
@@ -8,10 +7,11 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL
+      - DIRECT_URL
       - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:80}
       - PORT=3000
     command: >
-      sh -c "npx prisma migrate deploy && node prisma/seed.js && npm run start:prod"
+      sh -c "npx prisma migrate deploy && npm run start:prod"
 
 
   frontend:
