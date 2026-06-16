@@ -39,15 +39,38 @@ server {
         try_files $uri $uri/ /index.html;
     }
     location /api/ {
-        proxy_pass REPLACE_BACKEND_URL;
-        proxy_set_header Host              $host;
+        # DNS resolver (Google + Cloudflare) for runtime resolution
+        resolver 8.8.8.8 1.1.1.1 valid=30s ipv6=off;
+        resolver_timeout 10s;
+
+        # Use variable to force runtime DNS resolution
+        set $backend_upstream "REPLACE_BACKEND_URL";
+        proxy_pass $backend_upstream;
+
+        # Required for HTTPS upstream (SNI)
+        proxy_ssl_server_name on;
+        proxy_ssl_protocols TLSv1.2 TLSv1.3;
+
+        # Forward the backend hostname, not the frontend's
+        proxy_set_header Host              REPLACE_BACKEND_HOST;
         proxy_set_header X-Real-IP         $remote_addr;
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Longer timeouts for scale-to-zero cold starts
+        proxy_connect_timeout 60s;
+        proxy_read_timeout    60s;
+        proxy_send_timeout    60s;
     }
 }
 EOF
 
 EXPOSE 80
 
-CMD ["sh", "-c", "BACKEND=${BACKEND_URL:-http://localhost:3000} && sed -i 's|REPLACE_BACKEND_URL|'\"${BACKEND}\"'|g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# At startup: inject BACKEND_URL into nginx config, extract hostname for Host header
+CMD ["sh", "-c", "\
+  BACKEND=${BACKEND_URL:-http://localhost:3000} && \
+  BACKEND_HOST=$(echo \"$BACKEND\" | sed -E 's|https?://([^/:]+).*|\\1|') && \
+  sed -i \"s|REPLACE_BACKEND_URL|${BACKEND}|g\" /etc/nginx/conf.d/default.conf && \
+  sed -i \"s|REPLACE_BACKEND_HOST|${BACKEND_HOST}|g\" /etc/nginx/conf.d/default.conf && \
+  nginx -g 'daemon off;'"]
