@@ -45,7 +45,7 @@ server {
 
         # Use variable to force runtime DNS resolution
         set $backend_upstream "REPLACE_BACKEND_URL";
-        proxy_pass $backend_upstream;
+        proxy_pass $backend_upstream$request_uri;
 
         # Required for HTTPS upstream (SNI)
         proxy_ssl_server_name on;
