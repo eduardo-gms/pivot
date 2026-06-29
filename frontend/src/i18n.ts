@@ -40,6 +40,17 @@ const resources = {
       "Back to algorithms": "Back to algorithms",
       "Article not found": "Article not found",
       "offline_mode": "Running in offline mode — showing local data",
+      "select_algorithm_prompt": "Select an algorithm and start the simulation",
+
+      // Preset scenarios
+      "Scenario": "Scenario",
+      "preset_basic": "Basic",
+      "preset_underflow": "Underflow",
+      "preset_lifo_intensive": "LIFO Intensive",
+      "preset_fifo_intensive": "FIFO Intensive",
+      "preset_mixed": "Mixed Operations",
+      "preset_rotations": "With Rotations",
+      "preset_extract_heavy": "Extract Heavy",
 
       // --- Engine Steps (Sorting) ---
       "bubble_sort_initial": "Starting Bubble Sort on array: {{array}}.",
@@ -150,6 +161,17 @@ const resources = {
       "Back to algorithms": "Voltar para algoritmos",
       "Article not found": "Artigo não encontrado",
       "offline_mode": "Modo offline — exibindo dados locais",
+      "select_algorithm_prompt": "Selecione um algoritmo e inicie a simulação",
+
+      // Cenários preset
+      "Scenario": "Cenário",
+      "preset_basic": "Básico",
+      "preset_underflow": "Underflow",
+      "preset_lifo_intensive": "LIFO Intensivo",
+      "preset_fifo_intensive": "FIFO Intensivo",
+      "preset_mixed": "Operações Mistas",
+      "preset_rotations": "Com Rotações",
+      "preset_extract_heavy": "Extrações Intensivas",
 
       // --- Engine Steps (Sorting) ---
       "bubble_sort_initial": "Iniciando Bubble Sort no array: {{array}}.",

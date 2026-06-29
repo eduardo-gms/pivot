@@ -10,7 +10,7 @@ A arquitetura foi desenhada visando **custo zero** de infraestrutura inicial, ut
 
 O diagrama de contexto descreve a plataforma Pivot em sua visão mais macro, detalhando quem interage com o sistema e quais integrações externas existem.
 
-Neste MVP, as integrações externas em tempo de execução são mantidas ao mínimo para evitar custos. A geração automatizada de conteúdo baseada em IA (via Llama 3) ocorre de forma **offline** por meio de um script/pipeline, apenas populando o banco de dados.
+Neste MVP, as integrações externas em tempo de execução são mantidas ao mínimo para evitar custos. A geração automatizada de conteúdo baseada em IA (via LLM) ocorre de forma **offline** por meio de um script/pipeline, apenas populando o banco de dados.
 
 ```mermaid
 C4Context
@@ -20,7 +20,7 @@ C4Context
     
     System(pivot, "Plataforma Pivot", "Plataforma interativa de ensino visual e blog técnico multilíngue focado em algoritmos (Open Source).")
     
-    System_Ext(offline_ai, "Pipeline de Dados Offline (LLM)", "Script isolado usando Llama 3 local para gerar conteúdo teórico que alimentará a plataforma.")
+    System_Ext(offline_ai, "Pipeline de Dados Offline (LLM)", "Script isolado usando LLM (IA generativa) para gerar conteúdo teórico que alimentará a plataforma.")
 
     Rel(student, pivot, "Interage com o motor visual e lê artigos técnicos", "Navegador Web")
     Rel(offline_ai, pivot, "Alimenta a base de dados com teorias e artigos gerados (Prisma Seeds)", "Offline / CI")
@@ -48,7 +48,7 @@ C4Container
         ContainerDb(db, "Banco de Dados Relacional", "PostgreSQL (Neon)", "Armazena estruturalmente os artigos do blog, suporte i18n, e metadados dos algoritmos suportados. Plano Free Serverless.")
     }
 
-    System_Ext(seed_pipeline, "Script / CI Pipeline", "Node.js / Prisma Seed", "Executa as Prisma Seeds em tempo de build/deploy para popular o banco Neon com os textos gerados pelo Llama 3.")
+    System_Ext(seed_pipeline, "Script / CI Pipeline", "Node.js / Prisma Seed", "Executa as Prisma Seeds em tempo de build/deploy para popular o banco Neon com os textos gerados por LLM.")
 
     Rel(student, spa, "Navega pela plataforma", "HTTPS")
     Rel(spa, api, "Requisita artigos e configurações", "JSON / HTTPS")
@@ -83,7 +83,7 @@ C4Component
 
         Container_Boundary(blog, "Motor de Leitura e Blog") {
             Component(blog_ui, "Article Engine", "React Components", "Renderiza o texto rico (Markdown/HTML), tabelas de Big-O e exibe imagens (via URLs externas).")
-            Component(i18n, "Localization Service", "i18next", "Controla o idioma atual (PT-BR, EN, HI, ZH) e orquestra quais dados pedir para a API.")
+            Component(i18n, "Localization Service", "i18next", "Controla o idioma atual (PT-BR, EN) e orquestra quais dados pedir para a API. A arquitetura suporta adição de idiomas futuros via novas entradas nas tabelas de tradução.")
         }
         
         Component(api_client, "HTTP Client", "Axios ou Fetch", "Camada de abstração para consumir os dados da API REST do NestJS.")

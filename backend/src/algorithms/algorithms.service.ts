@@ -7,6 +7,7 @@ export class AlgorithmsService {
 
   async findAllCategories(lang: string) {
     const categories = await this.prisma.category.findMany({
+      orderBy: { slug: 'asc' },
       include: {
         translations: {
           where: { locale: lang },
@@ -30,6 +31,7 @@ export class AlgorithmsService {
 
     const algorithms = await this.prisma.algorithm.findMany({
       where: whereClause,
+      orderBy: { slug: 'asc' },
       include: {
         translations: {
           where: { locale: lang },

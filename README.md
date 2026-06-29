@@ -1,9 +1,13 @@
 # Pivot: Plataforma Educacional de Algoritmos e Estruturas de Dados
 
-![Status](https://img.shields.io/badge/Status-MVP_em_Desenvolvimento-blue)
+[![CI/CD Pipeline](https://github.com/eduardo-gms/pivot/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/eduardo-gms/pivot/actions/workflows/ci-cd.yml)
 ![License](https://img.shields.io/badge/License-MIT-green)
+![Status](https://img.shields.io/badge/Status-MVP_em_Desenvolvimento-blue)
 
-O **Pivot** é uma aplicação web interativa (Open Source) focada em desmistificar o aprendizado de Estruturas de Dados e Algoritmos. Atuando simultaneamente como um **simulador visual** passo a passo e um **blog técnico**, a plataforma foi desenhada tanto para universitários que buscam fixar fundamentos, quanto para desenvolvedores profissionais se preparando para processos seletivos e entrevistas técnicas (foco em Big-O).
+> **Simulador visual interativo** para Estruturas de Dados e Algoritmos + **blog técnico** com suporte multilíngue. Projetado para universitários e desenvolvedores se preparando para entrevistas técnicas.
+
+<!-- TODO: Adicionar GIF/screenshot do app rodando aqui -->
+<!-- ![Demo](./docs/assets/demo.gif) -->
 
 ---
 
@@ -21,33 +25,62 @@ Nesta primeira fase, o Pivot foca em fornecer uma experiência visual robusta e 
 A fundação de requisitos e a linguagem do domínio estão rigorosamente documentadas. Para entender o projeto a fundo, leia os arquivos abaixo:
 - 📖 [Visão do Produto (VISION.md)](./VISION.md): Entenda o problema, a solução, as personas e os módulos futuros (Juiz Online).
 - 📖 [Glossário Técnico (GLOSSARY.md)](./GLOSSARY.md): Mapeamento da *Linguagem Ubíqua* adotada pelo time. Essencial para entender os termos utilizados nas *Issues* e na nomeação de variáveis do código fonte.
+- 🏗️ [Arquitetura C4 (c4-model.md)](./docs/architecture/c4-model.md): Diagramas de contexto, container e componentes.
+- 🗄️ [Modelo de Dados (database.md)](./docs/architecture/database.md): Esquema do banco, relações e estratégia de i18n.
 
 ## 🛠️ Stack Tecnológica
 
-**Frontend:**
-- React
-- Zustand (Gerenciamento de Estado do Motor de Algoritmos)
-- D3.js / Canvas API (Renderização Visual)
-- i18next (Tradução e Localização)
+| Camada | Tecnologias |
+|:---|:---|
+| **Frontend** | React · Zustand · D3.js · i18next · React Router · Vite |
+| **Backend** | Node.js · NestJS · Prisma ORM · Swagger |
+| **Banco** | PostgreSQL (Neon serverless) |
+| **CI/CD** | GitHub Actions · Docker · Azure Container Apps |
+| **Testes** | Vitest (frontend) · Jest (backend) |
 
-**Backend:**
-- Node.js & NestJS
-- Prisma ORM
-- PostgreSQL (Neon ou Supabase)
+## 🏗️ Como Rodar Localmente
 
-## 🏗️ Como Contribuir
+### Pré-requisitos
+- [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/)
+- Node.js 20+ (para desenvolvimento sem Docker)
 
-Para rodar o projeto localmente:
+### Com Docker (recomendado)
+```bash
+# Clone o repositório
+git clone https://github.com/eduardo-gms/pivot.git
+cd pivot
 
-1. Clone o repositório.
-2. Certifique-se de ter o [Docker](https://www.docker.com/) e [Docker Compose](https://docs.docker.com/compose/) instalados.
-3. Configure as variáveis de ambiente:
-   - Copie o arquivo `.env.example` dentro de `backend/` para `.env` e ajuste se necessário.
-4. Suba os containers de desenvolvimento:
-   ```bash
-   docker-compose up --build
-   ```
-5. O banco de dados (`db`), o `backend` (na porta 3000) e o `frontend` (na porta 80) estarão rodando. O comando já executará o `prisma db seed` automaticamente, populando os algoritmos e categorias de demonstração.
+# (Opcional) Copie e ajuste variáveis de ambiente
+cp .env.example .env
+cp backend/.env.example backend/.env
+
+# Suba todos os serviços
+docker-compose up --build
+```
+
+O banco de dados (`db`), o `backend` (porta 3000) e o `frontend` (porta 80) estarão rodando. O comando já executa `prisma migrate deploy` e `prisma db seed` automaticamente.
+
+### Sem Docker (desenvolvimento)
+```bash
+# Backend
+cd backend
+cp .env.example .env  # Preencha DATABASE_URL e DIRECT_URL
+npm install
+npx prisma migrate dev
+npm run seed
+npm run start:dev
+
+# Frontend (outra janela)
+cd frontend
+npm install
+npm run dev
+```
+
+### Testes
+```bash
+cd frontend && npm test   # Vitest — engines + store (56 tests)
+cd backend && npm test    # Jest — services + controller (14 tests)
+```
 
 ## 🚀 Runbook de Deploy & Produção
 
@@ -57,6 +90,10 @@ A infraestrutura atual roda na Azure Container Apps (ACA) com scale-to-zero ativ
 - **Cold Start:** Devido ao `scale-to-zero` e ao uso de bancos serverless (Neon), a primeira requisição após um período de inatividade pode demorar de 10 a 30 segundos, ou ocasionalmente gerar timeout. O backend demora um pouco para iniciar e conectar ao banco.
 - **Seed Automático:** O Dockerfile de produção roda o `prisma migrate deploy` e `prisma db seed` durante o boot. O seed usa `upsert` em todos os registros, então é seguro rodar a cada deploy.
 - **Prevenção de Hibernação:** Se a latência de cold start se tornar um problema, você pode usar serviços como UptimeRobot para realizar um ping a cada 5 minutos no endpoint `GET /api/health` do backend, mantendo a instância ativa.
+
+## 🤝 Como Contribuir
+
+Consulte o [CONTRIBUTING.md](./CONTRIBUTING.md) para guias de setup, convenções de código, branches e PRs.
 
 ## 📄 Licença
 Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](./LICENSE) para mais detalhes.

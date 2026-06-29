@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useSimulationStore } from '../store/useSimulationStore';
-import { engineRegistry, getDefaultInput } from '../engines';
+import { engineRegistry, getDefaultInput, getPresets } from '../engines';
 import { D3Renderer } from '../components/D3Renderer';
 import { PlayerControls } from '../components/PlayerControls';
 import ReactMarkdown from 'react-markdown';
@@ -28,6 +28,20 @@ export function AlgorithmView() {
   const [inputText, setInputText] = useState('');
   const [article, setArticle] = useState<ArticleDetail | null>(null);
   const [isLoadingArticle, setIsLoadingArticle] = useState(true);
+  const [algorithmName, setAlgorithmName] = useState<string>(
+    slug?.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') || ''
+  );
+
+  // Fetch translated algorithm name from API
+  useEffect(() => {
+    if (!slug) return;
+    api
+      .get(`/algorithms/${slug}`)
+      .then((res) => setAlgorithmName(res.data.name))
+      .catch(() => {
+        // Fallback keeps the slug-formatted name already set in useState
+      });
+  }, [slug, i18n.language]);
 
   useEffect(() => {
     if (!slug) return;
@@ -71,7 +85,7 @@ export function AlgorithmView() {
         <h2 style={{ marginBottom: '1rem' }}>
           {t('Engine not found')}
         </h2>
-        <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>
+        <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
           {t('engine_not_found_desc', { slug })}
         </p>
         <Link to="/" className="btn">
@@ -97,11 +111,11 @@ export function AlgorithmView() {
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <div style={{ marginBottom: '1.5rem' }}>
-        <Link to="/" style={{ color: '#6366f1', fontSize: '0.9rem' }}>
+        <Link to="/" style={{ color: 'var(--primary)', fontSize: '0.9rem' }}>
           ← {t('Home')}
         </Link>
         <h2 style={{ fontSize: '1.75rem', fontWeight: '800', marginTop: '0.5rem' }}>
-          {slug?.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
+          {algorithmName}
         </h2>
       </div>
 
@@ -117,7 +131,7 @@ export function AlgorithmView() {
             marginBottom: '1rem',
           }}
         >
-          <label style={{ color: '#94a3b8', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+          <label style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
             {t('Input')}:
           </label>
           <input
@@ -131,7 +145,7 @@ export function AlgorithmView() {
               border: '1px solid rgba(255,255,255,0.15)',
               borderRadius: '8px',
               padding: '0.5rem 0.75rem',
-              color: '#f1f5f9',
+              color: 'var(--text-main)',
               fontSize: '0.9rem',
               outline: 'none',
             }}
@@ -140,6 +154,35 @@ export function AlgorithmView() {
           <button className="btn" onClick={handleCustomInput} style={{ padding: '0.5rem 1rem' }}>
             {t('Run')}
           </button>
+        </div>
+      )}
+
+      {/* Preset scenarios (for non-array engines) */}
+      {engine.dataType !== 'array' && (
+        <div
+          className="glass-panel"
+          style={{
+            display: 'flex',
+            gap: '0.5rem',
+            alignItems: 'center',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            flexWrap: 'wrap',
+          }}
+        >
+          <label style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'nowrap', marginRight: '0.25rem' }}>
+            {t('Scenario')}:
+          </label>
+          {getPresets(slug!).map((preset) => (
+            <button
+              key={preset.key}
+              className="btn"
+              onClick={() => runSimulation(preset.data)}
+              style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+            >
+              {t(preset.labelKey)}
+            </button>
+          ))}
         </div>
       )}
 
@@ -163,13 +206,13 @@ export function AlgorithmView() {
       <PlayerControls />
 
       {isLoadingArticle ? (
-        <p style={{ textAlign: 'center', color: '#64748b', marginTop: '3rem' }}>{t('Loading')}...</p>
+        <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '3rem' }}>{t('Loading')}...</p>
       ) : article ? (
         <article style={{ marginTop: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
           <h1 style={{ fontSize: '2rem', fontWeight: '800', marginBottom: '0.5rem' }}>
             {article.title}
           </h1>
-          <p style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '2rem' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '2rem' }}>
             {new Date(article.createdAt).toLocaleDateString()}
           </p>
 

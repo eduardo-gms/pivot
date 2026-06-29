@@ -1,7 +1,10 @@
 {
   "name": "pivot-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Interactive algorithm visualization SPA — step-by-step simulation engine with D3.js rendering.",
+  "author": "Eduardo Gomes",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",

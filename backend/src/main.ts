@@ -5,9 +5,11 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   // Validate required environment variables
-  if (!process.env.DATABASE_URL) {
-    console.error('FATAL: DATABASE_URL environment variable is not set.');
-    console.error('Copy backend/.env.example to backend/.env and fill in your Neon credentials.');
+  const requiredEnvVars = ['DATABASE_URL', 'DIRECT_URL'];
+  const missing = requiredEnvVars.filter((key) => !process.env[key]);
+  if (missing.length > 0) {
+    console.error(`FATAL: Missing required environment variables: ${missing.join(', ')}`);
+    console.error('Copy backend/.env.example to backend/.env and fill in your credentials.');
     process.exit(1);
   }
 

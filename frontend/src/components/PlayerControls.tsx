@@ -56,7 +56,7 @@ export function PlayerControls() {
         <button
           className="btn"
           onClick={pause}
-          style={{ padding: '0.5rem 1.25rem', background: '#ef4444' }}
+          style={{ padding: '0.5rem 1.25rem', background: 'var(--color-danger)' }}
         >
           ⏸ {t('Pause')}
         </button>
@@ -67,7 +67,7 @@ export function PlayerControls() {
           disabled={isAtEnd && status !== 'FINISHED'}
           style={{
             padding: '0.5rem 1.25rem',
-            background: '#10b981',
+            background: 'var(--secondary)',
             opacity: isAtEnd && status !== 'FINISHED' ? 0.4 : 1,
           }}
         >
@@ -89,7 +89,7 @@ export function PlayerControls() {
       </button>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto' }}>
-        <label style={{ color: '#94a3b8', fontSize: '13px' }}>{t('Speed')}:</label>
+        <label style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{t('Speed')}:</label>
         <input
           type="range"
           min="0"
@@ -97,14 +97,14 @@ export function PlayerControls() {
           step="5"
           value={displaySpeed}
           onChange={(e) => setSpeed(sliderToMs(parseInt(e.target.value)))}
-          style={{ width: '100px', accentColor: '#6366f1' }}
+          style={{ width: '100px', accentColor: 'var(--primary)' }}
         />
-        <span style={{ color: '#94a3b8', fontSize: '12px', minWidth: '35px' }}>
+        <span style={{ color: 'var(--text-muted)', fontSize: '12px', minWidth: '35px' }}>
           {displaySpeed}%
         </span>
       </div>
 
-      <div style={{ minWidth: '80px', textAlign: 'right', fontWeight: 'bold', fontSize: '14px', color: '#e2e8f0' }}>
+      <div style={{ minWidth: '80px', textAlign: 'right', fontWeight: 'bold', fontSize: '14px', color: 'var(--text-main)' }}>
         {steps.length > 0 ? `${currentStepIndex + 1} / ${steps.length}` : '–'}
       </div>
     </div>

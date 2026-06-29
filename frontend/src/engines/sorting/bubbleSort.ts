@@ -63,7 +63,7 @@ export function generateBubbleSortSteps(input: number[]): SimulationStep[] {
       [(arr.length - 1 - pass).toString()],
       'bubble_sort_pass_end',
       { pass: pass + 1 },
-      { pass: pass + 1 },
+      { val: arr[arr.length - 1 - pass].value },
     );
 
     if (!hasSwapped) {

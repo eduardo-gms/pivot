@@ -1,9 +1,10 @@
-import { BrowserRouter, Routes, Route, Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Globe, Sun, Moon, Search } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { AlgorithmsList } from './pages/AlgorithmsList';
 import { AlgorithmView } from './pages/AlgorithmView';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
 function Header() {
   const { t, i18n } = useTranslation();
@@ -121,13 +122,16 @@ function Header() {
 function App() {
   return (
     <BrowserRouter>
-      <Header />
-      <main className="page-container" style={{ paddingBottom: '3rem' }}>
-        <Routes>
-          <Route path="/" element={<AlgorithmsList />} />
-          <Route path="/algorithms/:slug" element={<AlgorithmView />} />
-        </Routes>
-      </main>
+      <ErrorBoundary>
+        <Header />
+        <main className="page-container" style={{ paddingBottom: '3rem' }}>
+          <Routes>
+            <Route path="/" element={<AlgorithmsList />} />
+            <Route path="/algorithms/:slug" element={<AlgorithmView />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </ErrorBoundary>
     </BrowserRouter>
   );
 }

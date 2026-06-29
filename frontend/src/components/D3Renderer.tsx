@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useSimulationStore } from '../store/useSimulationStore';
 import { SimulationData } from '../engines/types';
 import { ArrayRenderer } from './renderers/ArrayRenderer';
@@ -15,6 +16,7 @@ export function D3Renderer() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 400 });
   const { steps, currentStepIndex } = useSimulationStore();
+  const { t } = useTranslation();
 
   // Measure container width
   useEffect(() => {
@@ -49,7 +51,7 @@ export function D3Renderer() {
             fontSize: '14px',
           }}
         >
-          Select an algorithm and start the simulation
+          {t('select_algorithm_prompt')}
         </div>
       );
     }

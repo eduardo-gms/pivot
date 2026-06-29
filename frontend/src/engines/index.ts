@@ -48,19 +48,19 @@ export const engineRegistry: Record<string, EngineEntry> = {
   'stack': {
     slug: 'stack',
     dataType: 'stack',
-    ui: { catLabel: 'Linear', colorVar: 'var(--accent-sorting)', icon: 'Layers', difficulty: 'Easy' },
+    ui: { catLabel: 'Linear', colorVar: 'var(--accent-linear)', icon: 'Layers', difficulty: 'Easy' },
     generate: (ops) => generateStackSteps(ops),
   },
   'queue': {
     slug: 'queue',
     dataType: 'queue',
-    ui: { catLabel: 'Linear', colorVar: 'var(--accent-sorting)', icon: 'Layers', difficulty: 'Easy' },
+    ui: { catLabel: 'Linear', colorVar: 'var(--accent-linear)', icon: 'Layers', difficulty: 'Easy' },
     generate: (ops) => generateQueueSteps(ops),
   },
   'linked-list': {
     slug: 'linked-list',
     dataType: 'linked-list',
-    ui: { catLabel: 'Linear', colorVar: 'var(--accent-sorting)', icon: 'Layers', difficulty: 'Easy' },
+    ui: { catLabel: 'Linear', colorVar: 'var(--accent-linear)', icon: 'Layers', difficulty: 'Easy' },
     generate: (ops) => generateLinkedListSteps(ops),
   },
   'priority-queue': {
@@ -139,6 +139,71 @@ export function getDefaultInput(slug: string): EngineDefaultInput | null {
       ] };
     default:
       return null;
+  }
+}
+
+/** Returns preset scenarios for non-array engines (buttons in the UI) */
+export function getPresets(slug: string): { key: string; labelKey: string; data: any }[] {
+  const defaultInput = getDefaultInput(slug);
+  const basicData = defaultInput?.data ?? [];
+
+  switch (slug) {
+    case 'stack':
+      return [
+        { key: 'basic', labelKey: 'preset_basic', data: basicData },
+        { key: 'underflow', labelKey: 'preset_underflow', data: [
+          { action: 'push', value: 5 }, { action: 'pop' }, { action: 'pop' },
+        ]},
+        { key: 'lifo', labelKey: 'preset_lifo_intensive', data: [
+          { action: 'push', value: 1 }, { action: 'push', value: 2 },
+          { action: 'push', value: 3 }, { action: 'push', value: 4 },
+          { action: 'pop' }, { action: 'pop' }, { action: 'pop' }, { action: 'pop' },
+        ]},
+      ];
+    case 'queue':
+      return [
+        { key: 'basic', labelKey: 'preset_basic', data: basicData },
+        { key: 'underflow', labelKey: 'preset_underflow', data: [
+          { action: 'enqueue', value: 5 }, { action: 'dequeue' }, { action: 'dequeue' },
+        ]},
+        { key: 'fifo', labelKey: 'preset_fifo_intensive', data: [
+          { action: 'enqueue', value: 1 }, { action: 'enqueue', value: 2 },
+          { action: 'enqueue', value: 3 }, { action: 'dequeue' },
+          { action: 'enqueue', value: 4 }, { action: 'dequeue' }, { action: 'dequeue' },
+        ]},
+      ];
+    case 'linked-list':
+      return [
+        { key: 'basic', labelKey: 'preset_basic', data: basicData },
+        { key: 'mixed', labelKey: 'preset_mixed', data: [
+          { action: 'append', value: 10 }, { action: 'append', value: 20 },
+          { action: 'prepend', value: 5 }, { action: 'append', value: 30 },
+          { action: 'delete', value: 20 }, { action: 'prepend', value: 1 },
+          { action: 'delete', value: 5 },
+        ]},
+      ];
+    case 'priority-queue':
+      return [
+        { key: 'basic', labelKey: 'preset_basic', data: basicData },
+        { key: 'extract', labelKey: 'preset_extract_heavy', data: [
+          { action: 'insert', value: 50 }, { action: 'insert', value: 30 },
+          { action: 'insert', value: 40 }, { action: 'insert', value: 10 },
+          { action: 'extract' }, { action: 'extract' }, { action: 'extract' },
+        ]},
+      ];
+    case 'avl-tree':
+      return [
+        { key: 'basic', labelKey: 'preset_basic', data: basicData },
+        { key: 'rotations', labelKey: 'preset_rotations', data: [
+          { action: 'insert', value: 30 }, { action: 'insert', value: 20 },
+          { action: 'insert', value: 10 }, // LL rotation
+          { action: 'insert', value: 25 }, // LR rotation
+          { action: 'insert', value: 40 },
+          { action: 'insert', value: 50 }, // RR rotation
+        ]},
+      ];
+    default:
+      return [{ key: 'basic', labelKey: 'preset_basic', data: basicData }];
   }
 }
 

@@ -6,7 +6,7 @@ Este documento detalha o modelo relacional que será adotado no **PostgreSQL (Ne
 
 ## 1. Estratégia de Internacionalização (i18n)
 
-Para suportar múltiplos idiomas (`pt-BR`, `en`, `hi`, `zh`) sem duplicar dados estruturais, adotamos o padrão de **Tabelas de Tradução**. 
+Para suportar múltiplos idiomas (`pt-BR`, `en`) sem duplicar dados estruturais, adotamos o padrão de **Tabelas de Tradução**. A arquitetura suporta adição de idiomas futuros via novas linhas nas tabelas de tradução.
 - A **Tabela Principal** (ex: `Algorithm`) guarda as informações que são independentes de idioma, como IDs, *slugs* para as URLs e as Complexidades Big-O (que são matemática universal).
 - A **Tabela de Tradução** (ex: `AlgorithmTranslation`) guarda as strings traduzidas para um respectivo `locale`. 
 
@@ -35,7 +35,7 @@ erDiagram
     CategoryTranslation {
         String id PK
         String categoryId FK
-        String locale "pt-BR, en, hi, zh"
+        String locale "pt-BR, en"
         String name "Ex: Algoritmos de Ordenação"
         String description
     }
@@ -93,7 +93,7 @@ model CategoryTranslation {
   id          String   @id @default(uuid())
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
-  locale      String   // 'pt-BR', 'en', 'hi', 'zh'
+  locale      String   // 'pt-BR', 'en' (extensível)
   name        String
   description String?
 
@@ -116,7 +116,7 @@ model Algorithm {
 
 ## 4. O Fluxo de Seeds (CI/CD)
 
-Como o projeto não possui painel de administração (CMS), os artigos gerados offline pelo modelo LLM (Llama 3) vão seguir este fluxo:
+Como o projeto não possui painel de administração (CMS), os artigos gerados offline por LLM (IA generativa) vão seguir este fluxo:
 1. O texto gerado pela LLM será convertido em objetos JSON estruturados.
 2. O script de `Seed` do Prisma lerá esses arquivos JSON.
 3. Utilizando comandos como `prisma.article.upsert()`, o Prisma vai criar/atualizar as chaves estrangeiras dinamicamente inserindo o conteúdo e suas devidas traduções nos *locales* certos, populando o banco no servidor do Neon de forma 100% autônoma.

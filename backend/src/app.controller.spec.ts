@@ -14,9 +14,21 @@ describe('AppController', () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  describe('getApiInfo', () => {
+    it('should return project metadata with name and version', () => {
+      const result = appController.getApiInfo();
+      expect(result).toHaveProperty('name', 'Pivot API');
+      expect(result).toHaveProperty('version', '1.0.0');
+      expect(result).toHaveProperty('license', 'MIT');
+      expect(result).toHaveProperty('docs', '/api/docs');
+    });
+  });
+
+  describe('health', () => {
+    it('should return status ok', () => {
+      const result = appController.health();
+      expect(result).toHaveProperty('status', 'ok');
+      expect(result).toHaveProperty('ts');
     });
   });
 });

@@ -24,7 +24,8 @@ FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Add custom nginx configuration template for envsubst
-RUN cat <<'EOF' > /etc/nginx/conf.d/default.conf
+RUN mkdir -p /etc/nginx/templates
+RUN cat <<'EOF' > /etc/nginx/templates/default.conf.template
 server {
     listen 80;
 
@@ -44,7 +45,7 @@ server {
         resolver_timeout 10s;
 
         # Use variable to force runtime DNS resolution
-        set $backend_upstream "REPLACE_BACKEND_URL";
+        set $backend_upstream "${BACKEND}";
         proxy_pass $backend_upstream$request_uri;
 
         # Required for HTTPS upstream (SNI)
@@ -52,7 +53,7 @@ server {
         proxy_ssl_protocols TLSv1.2 TLSv1.3;
 
         # Forward the backend hostname, not the frontend's
-        proxy_set_header Host              REPLACE_BACKEND_HOST;
+        proxy_set_header Host              ${BACKEND_HOST};
         proxy_set_header X-Real-IP         $remote_addr;
         proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
@@ -67,10 +68,12 @@ EOF
 
 EXPOSE 80
 
-# At startup: inject BACKEND_URL into nginx config, extract hostname for Host header
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+  CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
+
+# At startup: resolve BACKEND_URL, extract hostname, envsubst only our vars, start nginx
 CMD ["sh", "-c", "\
-  BACKEND=${BACKEND_URL:-http://localhost:3000} && \
-  BACKEND_HOST=$(echo \"$BACKEND\" | sed -E 's|https?://([^/:]+).*|\\1|') && \
-  sed -i \"s|REPLACE_BACKEND_URL|${BACKEND}|g\" /etc/nginx/conf.d/default.conf && \
-  sed -i \"s|REPLACE_BACKEND_HOST|${BACKEND_HOST}|g\" /etc/nginx/conf.d/default.conf && \
+  export BACKEND=${BACKEND_URL:-http://localhost:3000} && \
+  export BACKEND_HOST=$(echo \"$BACKEND\" | sed -E 's|https?://([^/:]+).*|\\1|') && \
+  envsubst '${BACKEND} ${BACKEND_HOST}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && \
   nginx -g 'daemon off;'"]

@@ -3,9 +3,9 @@ services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_USER: pivot
-      POSTGRES_PASSWORD: pivot_password
-      POSTGRES_DB: pivot_db
+      POSTGRES_USER: ${POSTGRES_USER:-pivot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pivot_password}
+      POSTGRES_DB: ${POSTGRES_DB:-pivot_db}
     ports:
       - "5432:5432"
     healthcheck:
@@ -22,6 +22,7 @@ services:
       - "3000:3000"
     environment:
       DATABASE_URL: "postgresql://pivot:pivot_password@db:5432/pivot_db?schema=public"
+      DIRECT_URL: "postgresql://pivot:pivot_password@db:5432/pivot_db?schema=public"
       CORS_ORIGIN: "http://localhost"
       PORT: 3000
     depends_on:

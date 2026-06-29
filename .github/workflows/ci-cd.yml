@@ -16,8 +16,35 @@ env:
   FRONTEND_APP: pivot-frontend
 
 jobs:
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: ./frontend
+      - run: npm test
+        working-directory: ./frontend
+
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+        working-directory: ./backend
+      - run: npm test
+        working-directory: ./backend
+
   build-frontend:
     name: Build Frontend (React)
+    needs: [test-frontend]
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -54,6 +81,7 @@ jobs:
 
   build-backend:
     name: Build Backend (NestJS)
+    needs: [test-backend]
     runs-on: ubuntu-latest
     permissions:
       contents: read
