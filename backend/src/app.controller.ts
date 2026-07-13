@@ -16,6 +16,6 @@ export class AppController {
   @Get('health')
   @ApiOperation({ summary: 'Health check endpoint' })
   health() {
-    return { status: 'ok', ts: new Date().toISOString() };
+    return { status: 'ok', ts: new Date().toISOString(), uptime: process.uptime() };
   }
 }

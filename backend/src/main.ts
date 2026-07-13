@@ -1,8 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { Logger } from 'nestjs-pino';
+import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { setupApplicationInsights } from './common/telemetry';
 
+// Initialize Application Insights before NestFactory (if connection string is set)
+setupApplicationInsights();
 async function bootstrap() {
   // Validate required environment variables
   const requiredEnvVars = ['DATABASE_URL', 'DIRECT_URL'];
@@ -13,7 +18,13 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  // Structured logging via Pino
+  app.useLogger(app.get(Logger));
+
+  // Security headers (CSP, HSTS, X-Frame-Options, etc.)
+  app.use(helmet());
 
   // Global prefix — all routes start with /api
   app.setGlobalPrefix('api');
@@ -50,7 +61,9 @@ async function bootstrap() {
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
-  console.log(`🚀 Pivot API running on http://localhost:${port}/api`);
-  console.log(`📖 Swagger docs at http://localhost:${port}/api/docs`);
+
+  const logger = app.get(Logger);
+  logger.log(`🚀 Pivot API running on http://localhost:${port}/api`);
+  logger.log(`📖 Swagger docs at http://localhost:${port}/api/docs`);
 }
 bootstrap();

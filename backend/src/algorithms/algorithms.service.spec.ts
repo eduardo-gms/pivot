@@ -6,10 +6,12 @@ import { PrismaService } from '../prisma/prisma.service';
 const mockPrisma = {
   category: {
     findMany: jest.fn(),
+    count: jest.fn(),
   },
   algorithm: {
     findMany: jest.fn(),
     findUnique: jest.fn(),
+    count: jest.fn(),
   },
 };
 
@@ -29,7 +31,8 @@ describe('AlgorithmsService', () => {
   });
 
   describe('findAllCategories', () => {
-    it('should return categories with translated names', async () => {
+    it('should return paginated categories with translated names', async () => {
+      mockPrisma.category.count.mockResolvedValue(1);
       mockPrisma.category.findMany.mockResolvedValue([
         {
           id: 'cat-1',
@@ -38,24 +41,38 @@ describe('AlgorithmsService', () => {
         },
       ]);
 
-      const result = await service.findAllCategories('en');
-      expect(result).toEqual([
+      const result = await service.findAllCategories('en', 1, 10);
+      expect(result.meta).toEqual({ total: 1, page: 1, lastPage: 1 });
+      expect(result.data).toEqual([
         { id: 'cat-1', slug: 'sorting', name: 'Sorting Algorithms', description: 'Sort things' },
       ]);
     });
 
+    it('should apply skip/take for pagination', async () => {
+      mockPrisma.category.count.mockResolvedValue(5);
+      mockPrisma.category.findMany.mockResolvedValue([]);
+
+      await service.findAllCategories('en', 2, 2);
+
+      expect(mockPrisma.category.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 2, take: 2 }),
+      );
+    });
+
     it('should fallback to slug when no translation exists', async () => {
+      mockPrisma.category.count.mockResolvedValue(1);
       mockPrisma.category.findMany.mockResolvedValue([
         { id: 'cat-1', slug: 'sorting', translations: [] },
       ]);
 
       const result = await service.findAllCategories('en');
-      expect(result[0].name).toBe('sorting');
+      expect(result.data[0].name).toBe('sorting');
     });
   });
 
   describe('findAll', () => {
-    it('should return algorithms with translated names', async () => {
+    it('should return paginated algorithms with translated names', async () => {
+      mockPrisma.algorithm.count.mockResolvedValue(1);
       mockPrisma.algorithm.findMany.mockResolvedValue([
         {
           id: 'algo-1',
@@ -67,19 +84,43 @@ describe('AlgorithmsService', () => {
         },
       ]);
 
-      const result = await service.findAll('en');
-      expect(result).toHaveLength(1);
-      expect(result[0].name).toBe('Bubble Sort');
-      expect(result[0].slug).toBe('bubble-sort');
+      const result = await service.findAll('en', 1, 10);
+      expect(result.meta).toEqual({ total: 1, page: 1, lastPage: 1 });
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].name).toBe('Bubble Sort');
+      expect(result.data[0].slug).toBe('bubble-sort');
+    });
+
+    it('should apply skip/take for pagination', async () => {
+      mockPrisma.algorithm.count.mockResolvedValue(10);
+      mockPrisma.algorithm.findMany.mockResolvedValue([]);
+
+      await service.findAll('en', 3, 5);
+
+      expect(mockPrisma.algorithm.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ skip: 10, take: 5 }),
+      );
     });
 
     it('should filter by categoryId when provided', async () => {
+      mockPrisma.algorithm.count.mockResolvedValue(0);
       mockPrisma.algorithm.findMany.mockResolvedValue([]);
-      await service.findAll('en', 'cat-1');
+      await service.findAll('en', 1, 10, 'cat-1');
 
       expect(mockPrisma.algorithm.findMany).toHaveBeenCalledWith(
         expect.objectContaining({ where: { categoryId: 'cat-1' } }),
       );
+      expect(mockPrisma.algorithm.count).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { categoryId: 'cat-1' } }),
+      );
+    });
+
+    it('should calculate lastPage correctly', async () => {
+      mockPrisma.algorithm.count.mockResolvedValue(7);
+      mockPrisma.algorithm.findMany.mockResolvedValue([]);
+
+      const result = await service.findAll('en', 1, 3);
+      expect(result.meta.lastPage).toBe(3);
     });
   });
 
@@ -112,3 +153,4 @@ describe('AlgorithmsService', () => {
     });
   });
 });
+

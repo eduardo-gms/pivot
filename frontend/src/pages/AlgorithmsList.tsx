@@ -41,12 +41,12 @@ export function AlgorithmsList() {
     setIsLoading(true);
     
     Promise.all([
-      api.get<Algorithm[]>('/algorithms'),
-      api.get<Category[]>('/categories')
+      api.get<{ meta: any; data: Algorithm[] }>('/algorithms', { params: { limit: 100 } }),
+      api.get<{ meta: any; data: Category[] }>('/categories', { params: { limit: 100 } })
     ])
       .then(([algoRes, catRes]) => {
-        setAlgorithms(algoRes.data);
-        const dynamicCats = catRes.data.map(c => ({ id: c.id, slug: c.slug, label: c.name }));
+        setAlgorithms(algoRes.data.data);
+        const dynamicCats = catRes.data.data.map(c => ({ id: c.id, slug: c.slug, label: c.name }));
         setCategories([{ id: 'all', slug: 'all', label: 'All' }, ...dynamicCats]);
       })
       .catch(() => {

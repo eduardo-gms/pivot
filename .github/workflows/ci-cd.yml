@@ -32,6 +32,20 @@ jobs:
   test-backend:
     name: Test Backend
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: pivot_test
+          POSTGRES_PASSWORD: pivot_test_pass
+          POSTGRES_DB: pivot_test_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pivot_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,8 +53,27 @@ jobs:
           node-version: 20
       - run: npm ci
         working-directory: ./backend
-      - run: npm test
+      - name: Run unit tests
+        run: npm test
         working-directory: ./backend
+      - name: Generate Prisma client
+        working-directory: ./backend
+        env:
+          DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
+          DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
+        run: npx prisma generate
+      - name: Run Prisma migrations (test DB)
+        working-directory: ./backend
+        env:
+          DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
+          DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
+        run: npx prisma migrate deploy
+      - name: Run E2E tests
+        working-directory: ./backend
+        env:
+          DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
+          DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
+        run: npm run test:e2e
 
   build-frontend:
     name: Build Frontend (React)

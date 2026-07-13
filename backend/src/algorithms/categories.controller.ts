@@ -11,6 +11,6 @@ export class CategoriesController {
   @Get()
   @ApiOperation({ summary: 'Get all algorithm categories' })
   findAllCategories(@Query() dto: PaginationQueryDto) {
-    return this.algorithmsService.findAllCategories(dto.lang!);
+    return this.algorithmsService.findAllCategories(dto.lang!, dto.page!, dto.limit!);
   }
 }

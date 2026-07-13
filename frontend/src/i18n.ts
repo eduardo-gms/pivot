@@ -41,6 +41,7 @@ const resources = {
       "Article not found": "Article not found",
       "offline_mode": "Running in offline mode — showing local data",
       "select_algorithm_prompt": "Select an algorithm and start the simulation",
+      "mobile_simulator_blocked": "The interactive simulator is available only on Desktop/Tablet. You can read the article below.",
 
       // Preset scenarios
       "Scenario": "Scenario",
@@ -162,6 +163,7 @@ const resources = {
       "Article not found": "Artigo não encontrado",
       "offline_mode": "Modo offline — exibindo dados locais",
       "select_algorithm_prompt": "Selecione um algoritmo e inicie a simulação",
+      "mobile_simulator_blocked": "O simulador interativo está disponível apenas em Desktop/Tablet. Você pode ler o artigo abaixo.",
 
       // Cenários preset
       "Scenario": "Cenário",

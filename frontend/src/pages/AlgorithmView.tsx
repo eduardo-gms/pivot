@@ -5,6 +5,8 @@ import { useSimulationStore } from '../store/useSimulationStore';
 import { engineRegistry, getDefaultInput, getPresets } from '../engines';
 import { D3Renderer } from '../components/D3Renderer';
 import { PlayerControls } from '../components/PlayerControls';
+import { useIsMobile } from '../hooks/useIsMobile';
+import { Monitor } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
@@ -24,6 +26,7 @@ interface ArticleDetail {
 export function AlgorithmView() {
   const { slug } = useParams<{ slug: string }>();
   const { t, i18n } = useTranslation();
+  const isMobile = useIsMobile();
   const { loadSimulation, reset, steps, currentStepIndex } = useSimulationStore();
   const [inputText, setInputText] = useState('');
   const [article, setArticle] = useState<ArticleDetail | null>(null);
@@ -119,91 +122,110 @@ export function AlgorithmView() {
         </h2>
       </div>
 
-      {/* Custom input (for array-based algorithms) */}
-      {engine.dataType === 'array' && (
+      {/* Mobile guard: hide simulator on small screens */}
+      {isMobile ? (
         <div
           className="glass-panel"
           style={{
-            display: 'flex',
-            gap: '0.75rem',
-            alignItems: 'center',
-            padding: '0.75rem 1rem',
+            padding: '2.5rem 2rem',
+            textAlign: 'center',
             marginBottom: '1rem',
           }}
         >
-          <label style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
-            {t('Input')}:
-          </label>
-          <input
-            type="text"
-            value={inputText}
-            onChange={(e) => setInputText(e.target.value)}
-            placeholder="38, 27, 43, 3, 9, 82, 10"
-            style={{
-              flex: 1,
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              borderRadius: '8px',
-              padding: '0.5rem 0.75rem',
-              color: 'var(--text-main)',
-              fontSize: '0.9rem',
-              outline: 'none',
-            }}
-            onKeyDown={(e) => e.key === 'Enter' && handleCustomInput()}
-          />
-          <button className="btn" onClick={handleCustomInput} style={{ padding: '0.5rem 1rem' }}>
-            {t('Run')}
-          </button>
+          <Monitor size={48} style={{ color: 'var(--text-muted)', marginBottom: '1rem' }} />
+          <p style={{ color: 'var(--text-muted)', fontSize: '1rem', lineHeight: 1.6 }}>
+            {t('mobile_simulator_blocked')}
+          </p>
         </div>
-      )}
-
-      {/* Preset scenarios (for non-array engines) */}
-      {engine.dataType !== 'array' && (
-        <div
-          className="glass-panel"
-          style={{
-            display: 'flex',
-            gap: '0.5rem',
-            alignItems: 'center',
-            padding: '0.75rem 1rem',
-            marginBottom: '1rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          <label style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'nowrap', marginRight: '0.25rem' }}>
-            {t('Scenario')}:
-          </label>
-          {getPresets(slug!).map((preset) => (
-            <button
-              key={preset.key}
-              className="btn"
-              onClick={() => runSimulation(preset.data)}
-              style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+      ) : (
+        <>
+          {/* Custom input (for array-based algorithms) */}
+          {engine.dataType === 'array' && (
+            <div
+              className="glass-panel"
+              style={{
+                display: 'flex',
+                gap: '0.75rem',
+                alignItems: 'center',
+                padding: '0.75rem 1rem',
+                marginBottom: '1rem',
+              }}
             >
-              {t(preset.labelKey)}
-            </button>
-          ))}
-        </div>
+              <label style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+                {t('Input')}:
+              </label>
+              <input
+                type="text"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="38, 27, 43, 3, 9, 82, 10"
+                style={{
+                  flex: 1,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '8px',
+                  padding: '0.5rem 0.75rem',
+                  color: 'var(--text-main)',
+                  fontSize: '0.9rem',
+                  outline: 'none',
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && handleCustomInput()}
+              />
+              <button className="btn" onClick={handleCustomInput} style={{ padding: '0.5rem 1rem' }}>
+                {t('Run')}
+              </button>
+            </div>
+          )}
+
+          {/* Preset scenarios (for non-array engines) */}
+          {engine.dataType !== 'array' && (
+            <div
+              className="glass-panel"
+              style={{
+                display: 'flex',
+                gap: '0.5rem',
+                alignItems: 'center',
+                padding: '0.75rem 1rem',
+                marginBottom: '1rem',
+                flexWrap: 'wrap',
+              }}
+            >
+              <label style={{ color: 'var(--text-muted)', fontSize: '0.85rem', whiteSpace: 'nowrap', marginRight: '0.25rem' }}>
+                {t('Scenario')}:
+              </label>
+              {getPresets(slug!).map((preset) => (
+                <button
+                  key={preset.key}
+                  className="btn"
+                  onClick={() => runSimulation(preset.data)}
+                  style={{ padding: '0.4rem 0.8rem', fontSize: '0.85rem' }}
+                >
+                  {t(preset.labelKey)}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <D3Renderer />
+
+          {steps.length > 0 && (
+            <div
+              className="glass-panel"
+              style={{
+                padding: '1.25rem 1.5rem',
+                marginBottom: '1rem',
+                borderLeft: '4px solid var(--secondary)',
+                fontSize: '1.05rem',
+                lineHeight: 1.6,
+              }}
+            >
+              {t(steps[currentStepIndex].descriptionKey, steps[currentStepIndex].descriptionVariables || {}) as string}
+            </div>
+          )}
+
+          <PlayerControls />
+        </>
       )}
-
-      <D3Renderer />
-
-      {steps.length > 0 && (
-        <div
-          className="glass-panel"
-          style={{
-            padding: '1.25rem 1.5rem',
-            marginBottom: '1rem',
-            borderLeft: '4px solid var(--secondary)',
-            fontSize: '1.05rem',
-            lineHeight: 1.6,
-          }}
-        >
-          {t(steps[currentStepIndex].descriptionKey, steps[currentStepIndex].descriptionVariables || {}) as string}
-        </div>
-      )}
-
-      <PlayerControls />
 
       {isLoadingArticle ? (
         <p style={{ textAlign: 'center', color: 'var(--text-muted)', marginTop: '3rem' }}>{t('Loading')}...</p>

@@ -5,8 +5,12 @@ import { PrismaService } from '../prisma/prisma.service';
 export class AlgorithmsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAllCategories(lang: string) {
+  async findAllCategories(lang: string, page: number = 1, limit: number = 10) {
+    const total = await this.prisma.category.count();
+
     const categories = await this.prisma.category.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { slug: 'asc' },
       include: {
         translations: {
@@ -15,7 +19,7 @@ export class AlgorithmsService {
       },
     });
 
-    return categories.map((category) => {
+    const data = categories.map((category) => {
       const translation = category.translations[0];
       return {
         id: category.id,
@@ -24,13 +28,22 @@ export class AlgorithmsService {
         description: translation?.description || null,
       };
     });
+
+    return {
+      meta: { total, page, lastPage: Math.ceil(total / limit) || 1 },
+      data,
+    };
   }
 
-  async findAll(lang: string, categoryId?: string) {
+  async findAll(lang: string, page: number = 1, limit: number = 10, categoryId?: string) {
     const whereClause = categoryId ? { categoryId } : {};
+
+    const total = await this.prisma.algorithm.count({ where: whereClause });
 
     const algorithms = await this.prisma.algorithm.findMany({
       where: whereClause,
+      skip: (page - 1) * limit,
+      take: limit,
       orderBy: { slug: 'asc' },
       include: {
         translations: {
@@ -39,7 +52,7 @@ export class AlgorithmsService {
       },
     });
 
-    return algorithms.map((algo) => {
+    const data = algorithms.map((algo) => {
       const translation = algo.translations[0];
       return {
         id: algo.id,
@@ -51,6 +64,11 @@ export class AlgorithmsService {
         shortDescription: translation?.shortDescription || null,
       };
     });
+
+    return {
+      meta: { total, page, lastPage: Math.ceil(total / limit) || 1 },
+      data,
+    };
   }
 
   async findOneBySlug(slug: string, lang: string) {
@@ -89,3 +107,4 @@ export class AlgorithmsService {
     };
   }
 }
+

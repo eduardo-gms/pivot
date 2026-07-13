@@ -12,7 +12,7 @@ export class AlgorithmsController {
   @Get()
   @ApiOperation({ summary: 'Get all algorithms, optionally filtered by category' })
   findAll(@Query() dto: FindAlgorithmsDto) {
-    return this.algorithmsService.findAll(dto.lang!, dto.categoryId);
+    return this.algorithmsService.findAll(dto.lang!, dto.page!, dto.limit!, dto.categoryId);
   }
 
   @Get(':slug')
