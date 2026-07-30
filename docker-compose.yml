@@ -29,7 +29,7 @@ services:
       db:
         condition: service_healthy
     command: >
-      sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start:prod"
+      sh -c "npx prisma migrate deploy && (npx prisma db seed || echo '[WARN] Seed failed — data may already exist, continuing...') && npm run start:prod"
 
   frontend:
     build:
