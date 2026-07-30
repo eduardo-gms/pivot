@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - run: npm ci
         working-directory: ./frontend
       - run: npm test
@@ -45,11 +45,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - run: npm ci
-        working-directory: ./backend
-      - name: Run unit tests
-        run: npm test
         working-directory: ./backend
       - name: Generate Prisma client
         working-directory: ./backend
@@ -57,6 +54,9 @@ jobs:
           DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
           DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
         run: npx prisma generate
+      - name: Run unit tests
+        run: npm test
+        working-directory: ./backend
       - name: Run Prisma migrations (test DB)
         working-directory: ./backend
         env:

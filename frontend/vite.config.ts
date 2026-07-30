@@ -10,6 +10,7 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
   },
   build: {
+    target: 'es2022',
     rollupOptions: {
       output: {
         manualChunks: {
