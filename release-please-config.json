@@ -1,0 +1,15 @@
+{
+  "packages": {
+    "backend": {
+      "release-type": "node",
+      "package-name": "pivot-backend",
+      "changelog-path": "CHANGELOG.md"
+    },
+    "frontend": {
+      "release-type": "node",
+      "package-name": "pivot-frontend",
+      "changelog-path": "CHANGELOG.md"
+    }
+  },
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json"
+}
