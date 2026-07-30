@@ -39,7 +39,7 @@ describe('Articles (e2e)', () => {
           expect(Array.isArray(res.body.data)).toBe(true);
           expect(res.body.meta).toHaveProperty('total');
           expect(res.body.meta).toHaveProperty('page');
-          expect(res.body.meta).toHaveProperty('limit');
+          expect(res.body.meta).toHaveProperty('lastPage');
         });
     });
 

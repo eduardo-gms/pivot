@@ -30,7 +30,7 @@ async function bootstrap() {
   // TEMPORARY: log proxy chain to determine correct trust proxy value
   // Remove after analyzing logs and configuring app.set('trust proxy', N)
   // See: implementation_plan.md — Fase 2, Etapa 1
-  app.use((req, res, next) => {
+  app.use((req: any, res: any, next: () => void) => {
     const logger = app.get(Logger);
     logger.log({
       msg: 'proxy-chain-debug',
