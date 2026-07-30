@@ -1,5 +1,5 @@
 # Base image
-FROM node:22-alpine AS builder
+FROM node:26-alpine AS builder
 
 RUN apk add --no-cache openssl
 WORKDIR /app
@@ -26,7 +26,7 @@ RUN node node_modules/typescript/bin/tsc \
 
 # ---
 
-FROM node:22-alpine
+FROM node:26-alpine
 
 ENV NODE_ENV=production
 
