@@ -34,3 +34,16 @@ properties:
     scale:
       minReplicas: 0
       maxReplicas: 1
+    probes:
+      - type: Liveness
+        httpGet:
+          path: /api/health/live
+          port: 3000
+        initialDelaySeconds: 10
+        periodSeconds: 30
+      - type: Readiness
+        httpGet:
+          path: /api/health/ready
+          port: 3000
+        initialDelaySeconds: 5
+        periodSeconds: 15
