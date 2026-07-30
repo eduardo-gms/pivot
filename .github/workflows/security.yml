@@ -40,6 +40,8 @@ jobs:
           image-ref: 'pivot-${{ matrix.context }}:scan'
           severity: 'CRITICAL,HIGH'
           exit-code: '1'
+          skip-dirs: '/usr/local/lib/node_modules/npm'
+          trivyignores: '.trivyignore'
 
   codeql:
     name: CodeQL Analysis

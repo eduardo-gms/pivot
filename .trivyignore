@@ -1,0 +1,17 @@
+# Ignorar vulnerabilidades oriundas exclusivamente das dependências internas do CLI global do npm
+# localizado em /usr/local/lib/node_modules/npm/ (embutido nas imagens oficiais do Node/Alpine).
+# O diretório da aplicação (/app/node_modules) possui 0 vulnerabilidades (validado pelo npm audit e Trivy).
+
+# brace-expansion (npm global CLI)
+CVE-2026-13149
+CVE-2026-14257
+
+# picomatch (npm global CLI)
+CVE-2026-33671
+
+# sigstore (npm global CLI)
+CVE-2026-48815
+
+# tar (npm global CLI)
+CVE-2026-59873
+CVE-2026-59874
