@@ -87,7 +87,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Deploy Backend (create or update)
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DIRECT_URL: ${{ secrets.DIRECT_URL }}
@@ -141,7 +141,7 @@ jobs:
             fi
 
       - name: Get Backend FQDN
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         id: backend-fqdn
         with:
           azcliversion: latest
@@ -154,7 +154,7 @@ jobs:
             echo "Backend FQDN: $FQDN"
 
       - name: Deploy Frontend (create or update)
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         with:
           azcliversion: latest
           inlineScript: |
