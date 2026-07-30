@@ -1,5 +1,5 @@
 # Base image for building the app
-FROM node:20-alpine AS builder
+FROM node:22-alpine AS builder
 
 # Create app directory
 WORKDIR /app
@@ -38,6 +38,13 @@ server {
         root /usr/share/nginx/html;
         index index.html index.htm;
         try_files $uri $uri/ /index.html;
+
+        # Security headers for static content
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header X-XSS-Protection "1; mode=block" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'" always;
     }
     location /api/ {
         # DNS resolver (Google + Cloudflare) for runtime resolution

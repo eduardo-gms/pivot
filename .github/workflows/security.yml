@@ -1,0 +1,56 @@
+name: Security Scan
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly, Mondays 06:00 UTC
+
+jobs:
+  npm-audit:
+    name: npm audit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+        working-directory: ./${{ matrix.dir }}
+      - run: npm audit --audit-level=high
+        working-directory: ./${{ matrix.dir }}
+
+  trivy:
+    name: Trivy Container Scan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        context: [backend, frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t pivot-${{ matrix.context }}:scan ./${{ matrix.context }}
+      - name: Run Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'pivot-${{ matrix.context }}:scan'
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'
+          skip-dirs: '/usr/local/lib/node_modules/npm'
+          trivyignores: '.trivyignore'
+
+  codeql:
+    name: CodeQL Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+      - uses: github/codeql-action/analyze@v3

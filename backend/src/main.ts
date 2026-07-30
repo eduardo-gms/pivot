@@ -5,6 +5,7 @@ import { Logger } from 'nestjs-pino';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { setupApplicationInsights } from './common/telemetry';
+import { AllExceptionsFilter } from './common/filters/http-exception.filter';
 
 // Initialize Application Insights before NestFactory (if connection string is set)
 setupApplicationInsights();
@@ -26,6 +27,21 @@ async function bootstrap() {
   // Security headers (CSP, HSTS, X-Frame-Options, etc.)
   app.use(helmet());
 
+  // TEMPORARY: log proxy chain to determine correct trust proxy value
+  // Remove after analyzing logs and configuring app.set('trust proxy', N)
+  // See: implementation_plan.md — Fase 2, Etapa 1
+  app.use((req: any, res: any, next: () => void) => {
+    const logger = app.get(Logger);
+    logger.log({
+      msg: 'proxy-chain-debug',
+      xForwardedFor: req.headers['x-forwarded-for'],
+      xRealIp: req.headers['x-real-ip'],
+      remoteAddress: req.socket.remoteAddress,
+      reqIp: req.ip,
+    });
+    next();
+  });
+
   // Global prefix — all routes start with /api
   app.setGlobalPrefix('api');
 
@@ -35,6 +51,9 @@ async function bootstrap() {
     methods: ['GET', 'HEAD', 'OPTIONS'],
     credentials: false,
   });
+
+  // Global exception filter — standardized error format + Prisma error mapping
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   // Global validation pipe using class-validator DTOs
   app.useGlobalPipes(

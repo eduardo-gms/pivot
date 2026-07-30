@@ -49,12 +49,32 @@ npm run dev
 
 ## Branches
 
-| Tipo | Padrão | Exemplo |
-|:---|:---|:---|
-| Feature | `feature/<descrição>` | `feature/add-binary-search` |
-| Bug fix | `fix/<descrição>` | `fix/bubble-sort-i18n` |
-| Documentação | `docs/<descrição>` | `docs/update-readme` |
-| Testes | `test/<descrição>` | `test/add-queue-tests` |
+Modelo **trunk-based**: sem branch `develop`, PRs obrigatórios em `main` com CI verde.
+
+| Tipo | Padrão | Base | Merge para | Exemplo |
+|:---|:---|:---|:---|:---|
+| Feature | `feature/<descrição>` | `main` | `main` via PR | `feature/add-binary-search` |
+| Bug fix | `fix/<descrição>` | `main` | `main` via PR | `fix/bubble-sort-i18n` |
+| Hotfix | `hotfix/<descrição>` | `main` | `main` via PR (expedited) | `hotfix/fix-health-probe` |
+| Documentação | `docs/<descrição>` | `main` | `main` via PR | `docs/update-readme` |
+| Testes | `test/<descrição>` | `main` | `main` via PR | `test/add-queue-tests` |
+
+> **Branch protection**: `main` é protegida com `enforce_admins: true` — push direto é rejeitado mesmo para o owner. CI deve passar antes do merge.
+
+## Database Migrations
+
+A partir da migration inicial (`20260610011740_init`), toda alteração no schema Prisma deve gerar uma migration incremental:
+
+```bash
+cd backend
+npx prisma migrate dev --name <descricao-curta>
+# Exemplo: npx prisma migrate dev --name add-user-table
+```
+
+**Regras:**
+- Nunca editar migrations já aplicadas em produção
+- Rodar `npx prisma migrate deploy` no CI (já configurado no CD workflow)
+- Commitar a migration gerada junto com a alteração do `schema.prisma`
 
 ## Commits
 
