@@ -1,10 +1,13 @@
-name: CI/CD Pipeline
+name: CD — Deploy to Azure
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  # Triggers ONLY after CI workflow completes on main
+  workflow_run:
+    workflows: ["CI"]  # must match the name: field inside ci.yml exactly
+    types: [completed]
+    branches: [main]
+  # Manual emergency deploy (e.g. hotfix already merged)
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
@@ -16,143 +19,20 @@ env:
   FRONTEND_APP: pivot-frontend
 
 jobs:
-  test-frontend:
-    name: Test Frontend
+  # Gate: abort if CI failed or was cancelled
+  check-ci:
+    name: Verify CI Success
     runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-        working-directory: ./frontend
-      - run: npm test
-        working-directory: ./frontend
-
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_USER: pivot_test
-          POSTGRES_PASSWORD: pivot_test_pass
-          POSTGRES_DB: pivot_test_db
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd "pg_isready -U pivot_test"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npm ci
-        working-directory: ./backend
-      - name: Run unit tests
-        run: npm test
-        working-directory: ./backend
-      - name: Generate Prisma client
-        working-directory: ./backend
-        env:
-          DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
-          DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
-        run: npx prisma generate
-      - name: Run Prisma migrations (test DB)
-        working-directory: ./backend
-        env:
-          DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
-          DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
-        run: npx prisma migrate deploy
-      - name: Run E2E tests
-        working-directory: ./backend
-        env:
-          DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
-          DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
-        run: npm run test:e2e
-
-  build-frontend:
-    name: Build Frontend (React)
-    needs: [test-frontend]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Log in to the Container registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=sha
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
-  build-backend:
-    name: Build Backend (NestJS)
-    needs: [test-backend]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Log in to the Container registry
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest,enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
-            type=sha
-
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+      - run: echo "CI passed — proceeding with deploy"
 
   migrate:
     name: Run Database Migrations
+    needs: [check-ci]
     runs-on: ubuntu-latest
-    if: github.event_name != 'pull_request'
 
     steps:
       - name: Checkout repository
@@ -198,8 +78,7 @@ jobs:
   deploy:
     name: Deploy to Azure Container Apps
     runs-on: ubuntu-latest
-    needs: [build-frontend, build-backend, migrate]
-    if: github.event_name != 'pull_request'
+    needs: [migrate]
 
     steps:
       - name: Azure Login
@@ -251,8 +130,8 @@ jobs:
                 --ingress external \
                 --min-replicas 0 \
                 --max-replicas 1 \
-                --liveness-probe-path /api/health \
-                --readiness-probe-path /api/health \
+                --liveness-probe-path /api/health/live \
+                --readiness-probe-path /api/health/ready \
                 --secrets "database-url=$DATABASE_URL" "direct-url=$DIRECT_URL" \
                 --env-vars \
                   "DATABASE_URL=secretref:database-url" \
