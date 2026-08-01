@@ -134,13 +134,13 @@ export function AlgorithmsList() {
               
               <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1.5rem', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 {algo.name}
-                {!hasEngine && <span style={{ fontSize: '0.7rem', color: '#f59e0b', padding: '0.1rem 0.4rem', border: '1px solid #f59e0b', borderRadius: '4px' }}>Soon</span>}
+                {!hasEngine && <span style={{ fontSize: '0.7rem', color: '#f59e0b', padding: '0.1rem 0.4rem', border: '1px solid #f59e0b', borderRadius: '4px' }}>{t('algorithmsList.comingSoon')}</span>}
               </h3>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto' }}>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{catLabel}</span>
                 <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}>
-                  Visualize <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>▷</span>
+                  {t('algorithmsList.visualize')} <span style={{ fontSize: '1.2rem', lineHeight: 1 }}>▷</span>
                 </span>
               </div>
             </Link>
