@@ -1,5 +1,13 @@
 import { SimulationStep, TreeData, TreeNode, TreeOperation } from '../types';
 
+/**
+ * Priority Queue implementation using a binary Max-Heap.
+ *
+ * This file lives under engines/trees/ because the underlying data structure
+ * is a complete binary tree (heap). The GLOSSARY.md classifies Priority Queue
+ * as a "linear structure" from the user-facing/conceptual perspective, but the
+ * implementation is tree-based — hence the placement here.
+ */
 
 export function generatePriorityQueueSteps(operations: TreeOperation[]): SimulationStep[] {
   let stepCounter = 0;

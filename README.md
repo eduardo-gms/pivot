@@ -19,7 +19,6 @@ Nesta primeira fase, o Pivot foca em fornecer uma experiência visual robusta e 
 - **Árvores:** Árvore AVL (com foco visual nas rotações e fator de balanceamento).
 - **Acessibilidade (a11y):** Uso de padrões geométricos para garantir compreensão da interface por usuários com daltonismo.
 - **Internacionalização (i18n):** Suporte nativo para Português (BR) e Inglês.
-- **Dívida Técnica Conhecida:** Atualmente, apenas o algoritmo `bubble-sort` possui um artigo associado no banco de dados. Os endpoints de artigos para os outros algoritmos retornarão erro 404. Isso é esperado para a fase atual do MVP.
 
 ## 📚 Documentação do Projeto
 A fundação de requisitos e a linguagem do domínio estão rigorosamente documentadas. Para entender o projeto a fundo, leia os arquivos abaixo:
