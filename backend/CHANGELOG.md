@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/eduardo-gms/pivot/compare/pivot-backend-v1.1.0...pivot-backend-v1.1.1) (2026-08-01)
+
+
+### Bug Fixes
+
+* **backend:** configure trust proxy, remove debug middleware and condition swagger ([8760296](https://github.com/eduardo-gms/pivot/commit/8760296d4d76e986b0ccbd70cf95f0ddf27e310a))
+* remediate audit findings and enhance security and CI ([0ceef3c](https://github.com/eduardo-gms/pivot/commit/0ceef3c3c8f264899aeca41ac5bbd8ea1e0c9a2d))
+
 ## [1.1.0](https://github.com/eduardo-gms/pivot/compare/pivot-backend-v1.0.0...pivot-backend-v1.1.0) (2026-07-30)
 
 

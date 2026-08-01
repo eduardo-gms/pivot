@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.1.1](https://github.com/eduardo-gms/pivot/compare/pivot-frontend-v1.1.0...pivot-frontend-v1.1.1) (2026-08-01)
+
+
+### Bug Fixes
+
+* **deps:** remove incompatible brace-expansion override breaking coverage collection in CI ([b276aab](https://github.com/eduardo-gms/pivot/commit/b276aab6d2fe634925d10453f0308a1895da03b5))
+* **frontend:** extract header component and localize hardcoded strings in algorithm list ([c7b2792](https://github.com/eduardo-gms/pivot/commit/c7b27928c24363d5110b8894f9cf9491ce6ed1a0))
+* remediate audit findings and enhance security and CI ([0ceef3c](https://github.com/eduardo-gms/pivot/commit/0ceef3c3c8f264899aeca41ac5bbd8ea1e0c9a2d))
+
 ## [1.1.0](https://github.com/eduardo-gms/pivot/compare/pivot-frontend-v1.0.0...pivot-frontend-v1.1.0) (2026-07-30)
 
 
