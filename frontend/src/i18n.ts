@@ -31,6 +31,8 @@ const resources = {
       "Input": "Input",
 
       // Pages
+      "algorithmsList.comingSoon": "Soon",
+      "algorithmsList.visualize": "Visualize",
       "Filtered by": "Filtered by",
       "Show all": "Show all",
       "Loading": "Loading",
@@ -153,6 +155,8 @@ const resources = {
       "Input": "Entrada",
 
       // Páginas
+      "algorithmsList.comingSoon": "Em breve",
+      "algorithmsList.visualize": "Visualizar",
       "Filtered by": "Filtrado por",
       "Show all": "Mostrar todos",
       "Loading": "Carregando",
