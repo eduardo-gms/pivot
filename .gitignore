@@ -12,3 +12,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.sublime-workspace
+
+# Coverage
+coverage/
+*.lcov

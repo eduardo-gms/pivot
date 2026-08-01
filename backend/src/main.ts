@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
@@ -19,7 +20,7 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
 
   // Structured logging via Pino
   app.useLogger(app.get(Logger));
@@ -27,20 +28,10 @@ async function bootstrap() {
   // Security headers (CSP, HSTS, X-Frame-Options, etc.)
   app.use(helmet());
 
-  // TEMPORARY: log proxy chain to determine correct trust proxy value
-  // Remove after analyzing logs and configuring app.set('trust proxy', N)
-  // See: implementation_plan.md — Fase 2, Etapa 1
-  app.use((req: any, res: any, next: () => void) => {
-    const logger = app.get(Logger);
-    logger.log({
-      msg: 'proxy-chain-debug',
-      xForwardedFor: req.headers['x-forwarded-for'],
-      xRealIp: req.headers['x-real-ip'],
-      remoteAddress: req.socket.remoteAddress,
-      reqIp: req.ip,
-    });
-    next();
-  });
+  // Trust N proxy hops so req.ip resolves to the real client IP.
+  // Chain: ACA ingress (frontend) → nginx reverse-proxy → ACA ingress (backend) → Nest
+  // Adjust if infra topology changes.
+  app.set('trust proxy', 2);
 
   // Global prefix — all routes start with /api
   app.setGlobalPrefix('api');
@@ -64,25 +55,33 @@ async function bootstrap() {
     }),
   );
 
-  // Swagger interactive documentation at /api/docs
-  const config = new DocumentBuilder()
-    .setTitle('Pivot API')
-    .setDescription(
-      'REST API for the Pivot educational platform — serves algorithm metadata, categories, and blog articles with i18n support.',
-    )
-    .setVersion('1.0')
-    .addTag('categories', 'Algorithm categories (Sorting, Trees, etc.)')
-    .addTag('algorithms', 'Algorithm metadata and Big-O complexities')
-    .addTag('articles', 'Multilingual blog articles')
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  // Swagger interactive documentation — disabled in production unless explicitly enabled
+  const enableSwagger =
+    process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true';
+  if (enableSwagger) {
+    const config = new DocumentBuilder()
+      .setTitle('Pivot API')
+      .setDescription(
+        'REST API for the Pivot educational platform — serves algorithm metadata, categories, and blog articles with i18n support.',
+      )
+      .setVersion('1.0')
+      .addTag('categories', 'Algorithm categories (Sorting, Trees, etc.)')
+      .addTag('algorithms', 'Algorithm metadata and Big-O complexities')
+      .addTag('articles', 'Multilingual blog articles')
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);
 
   const logger = app.get(Logger);
   logger.log(`🚀 Pivot API running on http://localhost:${port}/api`);
-  logger.log(`📖 Swagger docs at http://localhost:${port}/api/docs`);
+  if (enableSwagger) {
+    logger.log(`📖 Swagger docs at http://localhost:${port}/api/docs`);
+  } else {
+    logger.log('🔒 Swagger docs disabled in production');
+  }
 }
 bootstrap();
