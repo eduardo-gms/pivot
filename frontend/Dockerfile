@@ -1,5 +1,5 @@
 # Base image for building the app
-FROM node:22-alpine AS builder
+FROM node:26-alpine AS builder
 
 # Create app directory
 WORKDIR /app
