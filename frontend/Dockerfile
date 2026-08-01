@@ -18,6 +18,8 @@ RUN npm run build
 # ---
 
 # Production image for serving static files
+# NOTE: nginx master process requires root for port 80 binding and envsubst templating.
+# Risk accepted — container serves only static files behind ACA ingress.
 FROM nginx:alpine
 
 # Copy built assets from builder stage

@@ -40,6 +40,9 @@ COPY --from=builder /app/prisma ./prisma
 
 RUN npm ci --omit=dev && npx prisma generate
 
+# Run as non-root for security
+USER node
+
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
