@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/eduardo-gms/pivot/compare/pivot-frontend-v1.1.1...pivot-frontend-v1.2.0) (2026-08-29)
+
+
+### Features
+
+* complete phase 4 implementation with operation builder and edge case feedback ([#60](https://github.com/eduardo-gms/pivot/issues/60)) ([c390b8b](https://github.com/eduardo-gms/pivot/commit/c390b8ba8d8df9c94c74b597b59e7358c079cc8a))
+
 ## [1.1.1](https://github.com/eduardo-gms/pivot/compare/pivot-frontend-v1.1.0...pivot-frontend-v1.1.1) (2026-08-01)
 
 
