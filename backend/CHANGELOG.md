@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/eduardo-gms/pivot/compare/pivot-backend-v1.1.1...pivot-backend-v1.2.0) (2026-08-29)
+
+
+### Features
+
+* complete phase 4 implementation with operation builder and edge case feedback ([#60](https://github.com/eduardo-gms/pivot/issues/60)) ([c390b8b](https://github.com/eduardo-gms/pivot/commit/c390b8ba8d8df9c94c74b597b59e7358c079cc8a))
+
+
+### Bug Fixes
+
+* suppress TypeScript 6.0 deprecation warnings ([#62](https://github.com/eduardo-gms/pivot/issues/62)) ([15922ad](https://github.com/eduardo-gms/pivot/commit/15922ada61266c4b10c6aad7aaf38afcd04a5885))
+
 ## [1.1.1](https://github.com/eduardo-gms/pivot/compare/pivot-backend-v1.1.0...pivot-backend-v1.1.1) (2026-08-01)
 
 
