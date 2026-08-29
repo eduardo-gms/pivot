@@ -117,13 +117,36 @@ const resources = {
       "pq_replaced_root": "Replaced root with the last element of the heap.",
       "pq_extracted": "Extracted maximum value {{value}}.",
       "pq_done": "Priority Queue simulation complete.",
+      "pq_underflow": "Underflow error: Cannot extract from an empty heap.",
 
       "avl_initial": "Starting AVL Tree simulation.",
       "avl_insert": "Inserting value {{value}} into the AVL Tree.",
       "avl_balance": "Updating balance factors.",
       "avl_rotate_left": "Performing Left Rotation at node {{value}} to restore balance.",
       "avl_rotate_right": "Performing Right Rotation at node {{value}} to restore balance.",
-      "avl_done": "AVL Tree simulation complete."
+      "avl_duplicate": "Value {{value}} already exists in the tree, skipped.",
+      "avl_done": "AVL Tree simulation complete.",
+
+      // Edge case feedback
+      "ll_delete_not_found": "Value {{value}} not found in the list.",
+
+      // Operation builder
+      "Custom": "Custom",
+      "Add": "Add",
+      "Execute": "Execute",
+      "Clear": "Clear",
+      "Value": "Value",
+      "Action": "Action",
+      "op_push": "Push",
+      "op_pop": "Pop",
+      "op_enqueue": "Enqueue",
+      "op_dequeue": "Dequeue",
+      "op_append": "Append",
+      "op_prepend": "Prepend",
+      "op_delete": "Delete",
+      "op_insert": "Insert",
+      "op_extract": "Extract",
+      "custom_ops_empty": "Add operations to build your sequence"
     }
   },
   'pt-BR': {
@@ -241,13 +264,36 @@ const resources = {
       "pq_replaced_root": "Raiz substituída pelo último elemento do heap.",
       "pq_extracted": "Valor máximo {{value}} extraído.",
       "pq_done": "Simulação de Fila de Prioridade concluída.",
+      "pq_underflow": "Erro de Underflow: Não é possível extrair de um heap vazio.",
 
       "avl_initial": "Iniciando simulação da Árvore AVL.",
       "avl_insert": "Inserindo valor {{value}} na árvore AVL.",
       "avl_balance": "Atualizando fatores de balanceamento.",
       "avl_rotate_left": "Realizando Rotação à Esquerda no nó {{value}} para restaurar o balanceamento.",
       "avl_rotate_right": "Realizando Rotação à Direita no nó {{value}} para restaurar o balanceamento.",
-      "avl_done": "Simulação de Árvore AVL concluída."
+      "avl_duplicate": "O valor {{value}} já existe na árvore, ignorado.",
+      "avl_done": "Simulação de Árvore AVL concluída.",
+
+      // Feedback de edge case
+      "ll_delete_not_found": "Valor {{value}} não encontrado na lista.",
+
+      // Construtor de operações
+      "Custom": "Personalizado",
+      "Add": "Adicionar",
+      "Execute": "Executar",
+      "Clear": "Limpar",
+      "Value": "Valor",
+      "Action": "Ação",
+      "op_push": "Push",
+      "op_pop": "Pop",
+      "op_enqueue": "Enfileirar",
+      "op_dequeue": "Desenfileirar",
+      "op_append": "Adicionar ao fim",
+      "op_prepend": "Adicionar ao início",
+      "op_delete": "Remover valor",
+      "op_insert": "Inserir",
+      "op_extract": "Extrair",
+      "custom_ops_empty": "Adicione operações para montar sua sequência"
     }
   }
 };

@@ -84,8 +84,10 @@ export function generateLinkedListSteps(operations: LinkedListOperation[]): Simu
 
       snapshot([newNodeId], 'll_prepend', { head: headId }, { value: op.value });
     } else if (op.action === 'delete') {
-      if (headId) {
-        const targetValue = op.value !== undefined ? op.value : nodes[0].value;
+      const targetValue = op.value;
+      if (!headId || targetValue === undefined) {
+        snapshot([], 'll_delete_not_found', {}, { value: targetValue ?? '?' });
+      } else {
         const targetIndex = nodes.findIndex((n) => n.value === targetValue);
         
         if (targetIndex !== -1) {
@@ -109,6 +111,8 @@ export function generateLinkedListSteps(operations: LinkedListOperation[]): Simu
 
           nodes.splice(targetIndex, 1);
           snapshot([], 'll_delete', {}, { value: targetNode.value });
+        } else {
+          snapshot([], 'll_delete_not_found', {}, { value: targetValue });
         }
       }
     }

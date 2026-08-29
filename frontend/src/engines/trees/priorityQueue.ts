@@ -116,6 +116,8 @@ export function generatePriorityQueueSteps(operations: TreeOperation[]): Simulat
       }
 
       snapshot([], 'pq_extracted', {}, { value: maxVal });
+    } else if (op.action === 'extract' && heap.length === 0) {
+      snapshot([], 'pq_underflow');
     }
   }
 
