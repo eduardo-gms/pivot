@@ -1,5 +1,6 @@
+import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AlgorithmView } from './AlgorithmView';
 import { useSimulationStore } from '../store/useSimulationStore';
@@ -96,5 +97,72 @@ describe('AlgorithmView', () => {
     renderWithSlug('bubble-sort');
     const link = screen.getByText(/Início|Home/i);
     expect(link).toBeInTheDocument();
+  });
+
+  describe('Operation Builder', () => {
+    beforeEach(() => {
+      (api.get as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
+        if (url.includes('/algorithms/stack')) {
+          return Promise.resolve({ data: { name: 'Stack' } });
+        }
+        if (url.includes('/articles/stack')) {
+          return Promise.resolve({
+            data: {
+              id: 'art-stack',
+              slug: 'stack',
+              algorithmId: 'a2',
+              createdAt: '2024-01-01T00:00:00Z',
+              title: 'Stack',
+              content: '# Stack',
+              seoDescription: null,
+            },
+          });
+        }
+        return Promise.reject(new Error('Not found'));
+      });
+    });
+
+    it('renders actions and builds custom operations sequence for stack', async () => {
+      renderWithSlug('stack');
+      await waitFor(() => {
+        expect(screen.getByText('Stack')).toBeInTheDocument();
+      });
+
+      const actionSelect = document.querySelector('#op-action-select') as HTMLSelectElement;
+      expect(actionSelect).toBeInTheDocument();
+
+      const addBtn = document.querySelector('#op-add-btn') as HTMLButtonElement;
+      
+      // Initially op_push requires a value
+      const input = document.querySelector('#op-value-input') as HTMLInputElement;
+      expect(input).toBeInTheDocument();
+      expect(addBtn).toBeDisabled();
+
+      // Add push 10
+      fireEvent.change(input, { target: { value: '10' } });
+      expect(addBtn).not.toBeDisabled();
+      fireEvent.click(addBtn);
+
+      // Verify chip is added by checking if execute button appears
+      expect(document.querySelector('#op-execute-btn')).toBeInTheDocument();
+
+      // Switch to pop
+      fireEvent.change(actionSelect, { target: { value: 'pop' } });
+      // Input should be gone
+      expect(document.querySelector('#op-value-input')).not.toBeInTheDocument();
+      // Add pop
+      fireEvent.click(addBtn);
+
+      // Execute sequence
+      const executeBtn = document.querySelector('#op-execute-btn') as HTMLButtonElement;
+      fireEvent.click(executeBtn);
+
+      // Clear sequence
+      const clearBtn = document.querySelector('#op-clear-btn') as HTMLButtonElement;
+      fireEvent.click(clearBtn);
+
+      // Execute button should be gone after clearing
+      expect(document.querySelector('#op-execute-btn')).not.toBeInTheDocument();
+    });
   });
 });

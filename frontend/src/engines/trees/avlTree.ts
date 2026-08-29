@@ -63,6 +63,12 @@ export function generateAVLTreeSteps(operations: TreeOperation[]): SimulationSte
     });
   };
 
+  const findNode = (node: Node | null, value: number): Node | null => {
+    if (!node) return null;
+    if (value === node.value) return node;
+    return value < node.value ? findNode(node.left, value) : findNode(node.right, value);
+  };
+
   snapshot([], 'avl_initial');
 
   const rightRotate = (y: Node): Node => {
@@ -131,9 +137,14 @@ export function generateAVLTreeSteps(operations: TreeOperation[]): SimulationSte
 
   for (const op of operations) {
     if (op.action === 'insert' && op.value !== undefined) {
-      snapshot([], 'avl_insert', { value: op.value });
-      root = insert(root, op.value);
-      snapshot([], 'avl_balance'); // Final state after this insertion
+      const existing = findNode(root, op.value);
+      if (existing) {
+        snapshot([existing.id], 'avl_duplicate', { value: op.value });
+      } else {
+        snapshot([], 'avl_insert', { value: op.value });
+        root = insert(root, op.value);
+        snapshot([], 'avl_balance'); // Final state after this insertion
+      }
     }
   }
 
