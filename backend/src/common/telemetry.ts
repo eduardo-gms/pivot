@@ -16,7 +16,9 @@ export function setupApplicationInsights(): void {
   const connectionString = process.env.APPLICATIONINSIGHTS_CONNECTION_STRING;
 
   if (!connectionString) {
-    console.log('ℹ️  Application Insights: No connection string found, telemetry disabled.');
+    console.log(
+      'ℹ️  Application Insights: No connection string found, telemetry disabled.',
+    );
     return;
   }
 

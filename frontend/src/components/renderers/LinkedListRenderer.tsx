@@ -119,7 +119,7 @@ export function LinkedListRenderer({ data, highlightedElements, width, height }:
       .attr('fill', '#64748b')
       .attr('font-size', '11px')
       .text(d => {
-        let label = [];
+        const label = [];
         if (d.id === data.headId) label.push('Head');
         if (d.id === data.tailId) label.push('Tail');
         return label.join(' / ');

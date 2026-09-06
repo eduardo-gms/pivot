@@ -60,9 +60,9 @@ describe('AppController', () => {
     });
 
     it('should throw ServiceUnavailableException when DB is down', async () => {
-      jest.spyOn(prismaService, '$queryRaw').mockRejectedValueOnce(
-        new Error('Connection refused'),
-      );
+      jest
+        .spyOn(prismaService, '$queryRaw')
+        .mockRejectedValueOnce(new Error('Connection refused'));
 
       await expect(appController.healthReady()).rejects.toThrow(
         ServiceUnavailableException,
@@ -70,9 +70,9 @@ describe('AppController', () => {
     });
 
     it('should include degraded status in 503 response body', async () => {
-      jest.spyOn(prismaService, '$queryRaw').mockRejectedValueOnce(
-        new Error('Connection refused'),
-      );
+      jest
+        .spyOn(prismaService, '$queryRaw')
+        .mockRejectedValueOnce(new Error('Connection refused'));
 
       try {
         await appController.healthReady();

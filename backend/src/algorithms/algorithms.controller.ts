@@ -10,9 +10,16 @@ export class AlgorithmsController {
   constructor(private readonly algorithmsService: AlgorithmsService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Get all algorithms, optionally filtered by category' })
+  @ApiOperation({
+    summary: 'Get all algorithms, optionally filtered by category',
+  })
   findAll(@Query() dto: FindAlgorithmsDto) {
-    return this.algorithmsService.findAll(dto.lang!, dto.page!, dto.limit!, dto.categoryId);
+    return this.algorithmsService.findAll(
+      dto.lang!,
+      dto.page,
+      dto.limit,
+      dto.categoryId,
+    );
   }
 
   @Get(':slug')

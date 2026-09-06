@@ -1,5 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  BadRequestException,
+  NotFoundException,
+} from '@nestjs/common';
 import { AllExceptionsFilter } from './http-exception.filter';
 import { Prisma } from '@prisma/client';
 
@@ -96,7 +101,11 @@ describe('AllExceptionsFilter', () => {
     it('should map P2025 (record not found) to 404', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Record not found',
-        { code: 'P2025', clientVersion: '5.0.0', meta: { cause: 'Record to update not found.' } },
+        {
+          code: 'P2025',
+          clientVersion: '5.0.0',
+          meta: { cause: 'Record to update not found.' },
+        },
       );
 
       filter.catch(exception, mockHost);
@@ -113,7 +122,11 @@ describe('AllExceptionsFilter', () => {
     it('should map P2003 (foreign key constraint) to 400', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Foreign key constraint failed',
-        { code: 'P2003', clientVersion: '5.0.0', meta: { field_name: 'categoryId' } },
+        {
+          code: 'P2003',
+          clientVersion: '5.0.0',
+          meta: { field_name: 'categoryId' },
+        },
       );
 
       filter.catch(exception, mockHost);
@@ -180,7 +193,9 @@ describe('AllExceptionsFilter', () => {
     });
 
     it('should NOT expose internal error details in the response', () => {
-      const exception = new Error('Sensitive database connection string leaked');
+      const exception = new Error(
+        'Sensitive database connection string leaked',
+      );
 
       filter.catch(exception, mockHost);
 

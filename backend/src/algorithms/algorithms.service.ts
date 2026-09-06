@@ -35,7 +35,12 @@ export class AlgorithmsService {
     };
   }
 
-  async findAll(lang: string, page: number = 1, limit: number = 10, categoryId?: string) {
+  async findAll(
+    lang: string,
+    page: number = 1,
+    limit: number = 10,
+    categoryId?: string,
+  ) {
     const whereClause = categoryId ? { categoryId } : {};
 
     const total = await this.prisma.algorithm.count({ where: whereClause });
@@ -107,4 +112,3 @@ export class AlgorithmsService {
     };
   }
 }
-

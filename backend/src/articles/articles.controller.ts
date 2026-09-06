@@ -14,8 +14,8 @@ export class ArticlesController {
   findAll(@Query() dto: FindArticlesDto) {
     return this.articlesService.findAll(
       dto.lang!,
-      dto.page!,
-      dto.limit!,
+      dto.page,
+      dto.limit,
       dto.algorithmId,
     );
   }

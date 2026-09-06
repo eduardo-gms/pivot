@@ -15,12 +15,18 @@ async function bootstrap() {
   const requiredEnvVars = ['DATABASE_URL', 'DIRECT_URL'];
   const missing = requiredEnvVars.filter((key) => !process.env[key]);
   if (missing.length > 0) {
-    console.error(`FATAL: Missing required environment variables: ${missing.join(', ')}`);
-    console.error('Copy backend/.env.example to backend/.env and fill in your credentials.');
+    console.error(
+      `FATAL: Missing required environment variables: ${missing.join(', ')}`,
+    );
+    console.error(
+      'Copy backend/.env.example to backend/.env and fill in your credentials.',
+    );
     process.exit(1);
   }
 
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
 
   // Structured logging via Pino
   app.useLogger(app.get(Logger));
@@ -57,7 +63,8 @@ async function bootstrap() {
 
   // Swagger interactive documentation — disabled in production unless explicitly enabled
   const enableSwagger =
-    process.env.NODE_ENV !== 'production' || process.env.ENABLE_SWAGGER === 'true';
+    process.env.NODE_ENV !== 'production' ||
+    process.env.ENABLE_SWAGGER === 'true';
   if (enableSwagger) {
     const config = new DocumentBuilder()
       .setTitle('Pivot API')

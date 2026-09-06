@@ -1,4 +1,10 @@
-import { Controller, Get, HttpCode, HttpStatus, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { PrismaService } from './prisma/prisma.service';
@@ -29,8 +35,13 @@ export class AppController {
   }
 
   @Get('health/ready')
-  @ApiOperation({ summary: 'Readiness probe — process + database connectivity' })
-  @ApiResponse({ status: 200, description: 'Process and database are reachable' })
+  @ApiOperation({
+    summary: 'Readiness probe — process + database connectivity',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Process and database are reachable',
+  })
   @ApiResponse({ status: 503, description: 'Database is unreachable' })
   async healthReady() {
     const start = Date.now();

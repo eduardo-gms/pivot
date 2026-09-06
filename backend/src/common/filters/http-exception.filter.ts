@@ -96,7 +96,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     switch (exception.code) {
       // Unique constraint violation
       case 'P2002': {
-        const target = (exception.meta?.target as string[])?.join(', ') || 'unknown field';
+        const target =
+          (exception.meta?.target as string[])?.join(', ') || 'unknown field';
         return {
           statusCode: HttpStatus.CONFLICT,
           message: `A record with this value already exists (${target}).`,
@@ -114,7 +115,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
       // Foreign key constraint failure
       case 'P2003': {
-        const field = (exception.meta?.field_name as string) || 'unknown relation';
+        const field =
+          (exception.meta?.field_name as string) || 'unknown relation';
         return {
           statusCode: HttpStatus.BAD_REQUEST,
           message: `Invalid reference: the related record does not exist (${field}).`,

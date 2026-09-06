@@ -24,6 +24,10 @@ jobs:
       - name: Install coverage provider
         run: npm install --save-dev @vitest/coverage-v8
         working-directory: ./frontend
+      - name: Lint
+        run: npm run lint
+        working-directory: ./frontend
+        continue-on-error: true
       - run: npx vitest run --coverage
         working-directory: ./frontend
       - name: Upload frontend coverage
@@ -63,6 +67,10 @@ jobs:
           DATABASE_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
           DIRECT_URL: "postgresql://pivot_test:pivot_test_pass@localhost:5432/pivot_test_db?schema=public"
         run: npx prisma generate
+      - name: Lint
+        run: npm run lint
+        working-directory: ./backend
+        continue-on-error: true
       - name: Run unit tests
         run: npm run test:cov
         working-directory: ./backend

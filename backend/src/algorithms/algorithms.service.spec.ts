@@ -37,14 +37,21 @@ describe('AlgorithmsService', () => {
         {
           id: 'cat-1',
           slug: 'sorting',
-          translations: [{ name: 'Sorting Algorithms', description: 'Sort things' }],
+          translations: [
+            { name: 'Sorting Algorithms', description: 'Sort things' },
+          ],
         },
       ]);
 
       const result = await service.findAllCategories('en', 1, 10);
       expect(result.meta).toEqual({ total: 1, page: 1, lastPage: 1 });
       expect(result.data).toEqual([
-        { id: 'cat-1', slug: 'sorting', name: 'Sorting Algorithms', description: 'Sort things' },
+        {
+          id: 'cat-1',
+          slug: 'sorting',
+          name: 'Sorting Algorithms',
+          description: 'Sort things',
+        },
       ]);
     });
 
@@ -80,7 +87,12 @@ describe('AlgorithmsService', () => {
           categoryId: 'cat-1',
           timeComplexity: 'O(n²)',
           spaceComplexity: 'O(1)',
-          translations: [{ name: 'Bubble Sort', shortDescription: 'A simple sorting algorithm' }],
+          translations: [
+            {
+              name: 'Bubble Sort',
+              shortDescription: 'A simple sorting algorithm',
+            },
+          ],
         },
       ]);
 
@@ -153,4 +165,3 @@ describe('AlgorithmsService', () => {
     });
   });
 });
-

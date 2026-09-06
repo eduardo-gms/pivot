@@ -36,7 +36,12 @@ describe('ArticlesService', () => {
           algorithmId: 'algo-1',
           isPublished: true,
           createdAt: new Date('2024-01-01'),
-          translations: [{ title: 'Bubble Sort Explained', seoDescription: 'Learn bubble sort' }],
+          translations: [
+            {
+              title: 'Bubble Sort Explained',
+              seoDescription: 'Learn bubble sort',
+            },
+          ],
         },
       ]);
 
@@ -76,11 +81,13 @@ describe('ArticlesService', () => {
         algorithmId: 'algo-1',
         isPublished: true,
         createdAt: new Date('2024-01-01'),
-        translations: [{
-          title: 'Bubble Sort Explained',
-          content: '# Introduction\nBubble sort...',
-          seoDescription: 'Learn bubble sort',
-        }],
+        translations: [
+          {
+            title: 'Bubble Sort Explained',
+            content: '# Introduction\nBubble sort...',
+            seoDescription: 'Learn bubble sort',
+          },
+        ],
       });
 
       const result = await service.findOneBySlug('bubble-sort', 'en');
