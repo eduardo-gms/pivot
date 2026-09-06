@@ -57,13 +57,29 @@ export class AllExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const status = exception.getStatus();
       const exResponse = exception.getResponse();
-      const message =
-        typeof exResponse === 'string'
-          ? exResponse
-          : (exResponse as any).message || exception.message;
+
+      let extractedMessage: string | string[] = exception.message;
+
+      if (typeof exResponse === 'string') {
+        extractedMessage = exResponse;
+      } else if (
+        typeof exResponse === 'object' &&
+        exResponse !== null &&
+        'message' in exResponse
+      ) {
+        const msg = (exResponse as Record<string, unknown>).message;
+        if (typeof msg === 'string') {
+          extractedMessage = msg;
+        } else if (Array.isArray(msg)) {
+          extractedMessage = msg.map(String);
+        }
+      }
+
       return {
         statusCode: status,
-        message: Array.isArray(message) ? message.join('; ') : message,
+        message: Array.isArray(extractedMessage)
+          ? extractedMessage.join('; ')
+          : extractedMessage,
         error: HttpStatus[status] || 'Error',
       };
     }
@@ -96,7 +112,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
     switch (exception.code) {
       // Unique constraint violation
       case 'P2002': {
-        const target = (exception.meta?.target as string[])?.join(', ') || 'unknown field';
+        const target =
+          (exception.meta?.target as string[])?.join(', ') || 'unknown field';
         return {
           statusCode: HttpStatus.CONFLICT,
           message: `A record with this value already exists (${target}).`,
@@ -114,7 +131,8 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
       // Foreign key constraint failure
       case 'P2003': {
-        const field = (exception.meta?.field_name as string) || 'unknown relation';
+        const field =
+          (exception.meta?.field_name as string) || 'unknown relation';
         return {
           statusCode: HttpStatus.BAD_REQUEST,
           message: `Invalid reference: the related record does not exist (${field}).`,
