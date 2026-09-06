@@ -63,9 +63,13 @@ describe('AlgorithmsList', () => {
       </MemoryRouter>,
     );
 
-  it('renders loading state initially', () => {
+  it('renders loading state initially', async () => {
     renderPage();
     expect(screen.getByText(/Carregando|Loading/i)).toBeInTheDocument();
+    // Wait for data to load to prevent act() warnings from late state updates
+    await waitFor(() => {
+      expect(screen.queryByText(/Carregando|Loading/i)).not.toBeInTheDocument();
+    });
   });
 
   it('renders algorithm cards after loading', async () => {
@@ -86,8 +90,11 @@ describe('AlgorithmsList', () => {
 
   it('renders the welcome heading', async () => {
     renderPage();
+    expect(screen.getByText(/Bem-vindo|Welcome/i)).toBeInTheDocument();
+    
+    // Wait for data to load to prevent act() warnings
     await waitFor(() => {
-      expect(screen.getByText(/Bem-vindo|Welcome/i)).toBeInTheDocument();
+      expect(screen.queryByText(/Carregando|Loading/i)).not.toBeInTheDocument();
     });
   });
 

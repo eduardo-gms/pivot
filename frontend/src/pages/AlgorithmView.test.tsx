@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AlgorithmView } from './AlgorithmView';
 import { useSimulationStore } from '../store/useSimulationStore';
@@ -14,6 +14,8 @@ class MockResizeObserver {
   disconnect() {}
 }
 globalThis.ResizeObserver = MockResizeObserver as any;
+
+const flushPromises = () => new Promise(resolve => setTimeout(resolve, 0));
 
 // Mock the api module
 vi.mock('../api', () => ({
@@ -64,6 +66,7 @@ describe('AlgorithmView', () => {
     await waitFor(() => {
       expect(screen.getByText('Bubble Sort')).toBeInTheDocument();
     });
+    await act(async () => { await flushPromises(); });
   });
 
   it('renders D3Renderer (SVG) for a valid engine', async () => {
@@ -72,6 +75,7 @@ describe('AlgorithmView', () => {
       const svg = container.querySelector('svg');
       expect(svg).toBeInTheDocument();
     });
+    await act(async () => { await flushPromises(); });
   });
 
   it('renders PlayerControls for a valid engine', async () => {
@@ -79,6 +83,7 @@ describe('AlgorithmView', () => {
     await waitFor(() => {
       expect(screen.getByRole('slider')).toBeInTheDocument();
     });
+    await act(async () => { await flushPromises(); });
   });
 
   it('renders article content when available', async () => {
@@ -91,12 +96,14 @@ describe('AlgorithmView', () => {
   it('shows "engine not found" for unknown slug', async () => {
     renderWithSlug('nonexistent-algo');
     expect(screen.getByText(/Motor não encontrado|Engine not found/i)).toBeInTheDocument();
+    await act(async () => { await flushPromises(); });
   });
 
   it('shows back link to home', async () => {
     renderWithSlug('bubble-sort');
     const link = screen.getByText(/Início|Home/i);
     expect(link).toBeInTheDocument();
+    await act(async () => { await flushPromises(); });
   });
 
   describe('Operation Builder', () => {
@@ -163,6 +170,7 @@ describe('AlgorithmView', () => {
 
       // Execute button should be gone after clearing
       expect(document.querySelector('#op-execute-btn')).not.toBeInTheDocument();
+      await act(async () => { await flushPromises(); });
     });
   });
 });
