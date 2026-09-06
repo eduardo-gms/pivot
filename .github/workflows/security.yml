@@ -12,6 +12,7 @@ jobs:
     name: npm audit
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         dir: [backend, frontend]
     steps:
@@ -21,13 +22,19 @@ jobs:
           node-version: 22
       - run: npm ci
         working-directory: ./${{ matrix.dir }}
-      - run: npm audit --audit-level=high
+      - name: Audit production deps (moderate, blocking)
+        run: npm audit --omit=dev --audit-level=moderate
         working-directory: ./${{ matrix.dir }}
+      - name: Audit all deps (high, informational)
+        run: npm audit --audit-level=high
+        working-directory: ./${{ matrix.dir }}
+        continue-on-error: true
 
   trivy:
     name: Trivy Container Scan
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         context: [backend, frontend]
     steps:
