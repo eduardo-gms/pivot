@@ -1,12 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { HttpException, HttpStatus, BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  HttpStatus,
+  BadRequestException,
+  NotFoundException,
+  ArgumentsHost,
+} from '@nestjs/common';
 import { AllExceptionsFilter } from './http-exception.filter';
 import { Prisma } from '@prisma/client';
 
 describe('AllExceptionsFilter', () => {
   let filter: AllExceptionsFilter;
 
-  const mockJson = jest.fn();
+  const mockJson = jest.fn<void, [unknown]>();
   const mockStatus = jest.fn().mockReturnValue({ json: mockJson });
   const mockGetResponse = jest.fn().mockReturnValue({ status: mockStatus });
   const mockGetRequest = jest.fn().mockReturnValue({
@@ -18,7 +23,7 @@ describe('AllExceptionsFilter', () => {
       getResponse: mockGetResponse,
       getRequest: mockGetRequest,
     }),
-  } as any;
+  } as unknown as ArgumentsHost;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,6 +46,7 @@ describe('AllExceptionsFilter', () => {
           statusCode: 404,
           message: 'Algorithm not found',
           path: '/api/test',
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           timestamp: expect.any(String),
         }),
       );
@@ -88,6 +94,7 @@ describe('AllExceptionsFilter', () => {
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 409,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           message: expect.stringContaining('slug'),
         }),
       );
@@ -96,7 +103,11 @@ describe('AllExceptionsFilter', () => {
     it('should map P2025 (record not found) to 404', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Record not found',
-        { code: 'P2025', clientVersion: '5.0.0', meta: { cause: 'Record to update not found.' } },
+        {
+          code: 'P2025',
+          clientVersion: '5.0.0',
+          meta: { cause: 'Record to update not found.' },
+        },
       );
 
       filter.catch(exception, mockHost);
@@ -113,7 +124,11 @@ describe('AllExceptionsFilter', () => {
     it('should map P2003 (foreign key constraint) to 400', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Foreign key constraint failed',
-        { code: 'P2003', clientVersion: '5.0.0', meta: { field_name: 'categoryId' } },
+        {
+          code: 'P2003',
+          clientVersion: '5.0.0',
+          meta: { field_name: 'categoryId' },
+        },
       );
 
       filter.catch(exception, mockHost);
@@ -122,6 +137,7 @@ describe('AllExceptionsFilter', () => {
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 400,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           message: expect.stringContaining('categoryId'),
         }),
       );
@@ -139,6 +155,7 @@ describe('AllExceptionsFilter', () => {
       expect(mockJson).toHaveBeenCalledWith(
         expect.objectContaining({
           statusCode: 422,
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           message: expect.stringContaining('P2010'),
         }),
       );
@@ -180,11 +197,15 @@ describe('AllExceptionsFilter', () => {
     });
 
     it('should NOT expose internal error details in the response', () => {
-      const exception = new Error('Sensitive database connection string leaked');
+      const exception = new Error(
+        'Sensitive database connection string leaked',
+      );
 
       filter.catch(exception, mockHost);
 
-      const responseBody = mockJson.mock.calls[0][0];
+      const responseBody = mockJson.mock.calls[0][0] as {
+        message: string;
+      };
       expect(responseBody.message).not.toContain('Sensitive');
       expect(responseBody.message).toBe('An unexpected error occurred.');
     });
